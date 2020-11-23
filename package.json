@@ -1,0 +1,32 @@
+{
+  "name": "online-shop-node-express-sequalize",
+  "version": "1.0.0",
+  "description": "A typical online shop created by using Node.js, Express.js, Ejs, MySQL, Sequelize, and other packages.",
+  "main": "app.js",
+  "scripts": {
+    "test": "n/a",
+    "start": "npm app.js",
+    "start-dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paul-kh/online-shop-node-express-sequelize.git"
+  },
+  "keywords": [
+    "onlineShop"
+  ],
+  "author": "Paul Chheang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paul-kh/online-shop-node-express-sequelize/issues"
+  },
+  "homepage": "https://github.com/paul-kh/online-shop-node-express-sequelize#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.3.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
