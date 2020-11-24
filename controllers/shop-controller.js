@@ -8,11 +8,18 @@ exports.getHomepage = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-    res.render("shop-views/product-list", {
-        pageTitle: "Shop Products",
-        path: "/products"
-    });
-}
+    Product.findAll()
+        .then(products => {
+            res.render('shop-views/product-list', {
+                prods: products,
+                pageTitle: 'All Products',
+                path: '/products'
+            });
+        })
+        .catch(err => {
+            console.log(err);
+        });
+};
 
 exports.getCart = (req, res, next) => {
     res.render("shop-views/cart", {
