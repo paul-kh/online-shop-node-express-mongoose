@@ -1,3 +1,5 @@
+const Product = require("../models/product");
+
 exports.getHomepage = (req, res, next) => {
     res.render("shop-views/index", {
         pageTitle: "Home Page",

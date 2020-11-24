@@ -16,9 +16,7 @@ app.use(Express.static(path.join(__dirname, 'public')));
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
-/* Middlewares handling routes ****
-***********************************/
-// import route modules
+// Middlewares handling routes
 const adminRoutes = require("./routes/admin-routes");
 const shopRoutes = require("./routes/shop-routes");
 app.use("/admin", adminRoutes);
@@ -33,7 +31,7 @@ const sequelizeDB = require("./util/db-connection");
 sequelizeDB.sync()
     .then(result => {
         // console.log(result);
-        // Start the server at port 3000
+        // Start the server at port 3000 upon successful sync to DB
         app.listen(3000);
     })
     .catch(error => console.log(error));
