@@ -20,4 +20,7 @@ router.get('/edit-product/:productId', adminController.getEditProduct);
 // Receive POST req for editing a product, and update the product in DB - POST '/admin/edit-product
 router.post('/edit-product', adminController.postEditProduct);
 
+// Delete a product - POST '/admin/delete-product/'
+router.post("/delete-product/", adminController.postDeleteProduct);
+
 module.exports = router;

@@ -4,7 +4,8 @@ const Product = require("../models/product");
 exports.getAddProduct = (req, res, next) => {
     res.render("admin-views/edit-product", {
         pageTitle: "Add Product",
-        path: "/admin/add-product"
+        path: "/admin/add-product",
+        editing: false
     });
 }
 
@@ -18,11 +19,12 @@ exports.postAddProduct = (req, res, next) => {
         title: title,
         price: price,
         imageUrl: imageUrl,
-        description: description
+        description: description,
     })
         .then(result => {
             // console.log(result);
             console.log('Created Product');
+            res.redirect("/admin/products");
         })
         .catch(err => {
             console.log(err);
@@ -93,4 +95,19 @@ exports.postEditProduct = (req, res, next) => {
             res.redirect("/admin/products");
         })
         .catch(err => console.log(err));
+}
+
+exports.postDeleteProduct = (req, res, next) => {
+    // Get product ID from the hidden input form control in the view 'products.ejs'
+    const productId = req.body.productId;
+    Product.findByPk(productId)
+        .then(product => {
+            return product.destroy();
+        })
+        .then(result => {
+            console.log("The product was deleted successfully!");
+            res.redirect("/admin/products");
+        })
+        .catch(err => console.log(err));
+
 }

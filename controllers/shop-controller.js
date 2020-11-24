@@ -1,10 +1,17 @@
 const Product = require("../models/product");
 
 exports.getHomepage = (req, res, next) => {
-    res.render("shop-views/index", {
-        pageTitle: "Home Page",
-        path: "/"
-    });
+    Product.findAll()
+        .then(products => {
+            res.render('shop-views/product-list', {
+                prods: products,
+                pageTitle: 'All Products',
+                path: '/'
+            });
+        })
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 exports.getProducts = (req, res, next) => {
