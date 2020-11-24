@@ -24,6 +24,10 @@ const shopRoutes = require("./routes/shop-routes");
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 
+// Handle 404
+const errorController = require("./controllers/error-controller");
+app.use(errorController.get404);
+
 
 // Start the server at port 3000
 app.listen(3000);
