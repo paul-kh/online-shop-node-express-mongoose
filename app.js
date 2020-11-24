@@ -12,6 +12,10 @@ app.set('views', 'views');
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, 'public')));
 
+// Middleware for parsing request's body to json format
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+
 /* Middlewares handling routes ****
 ***********************************/
 // import route modules
