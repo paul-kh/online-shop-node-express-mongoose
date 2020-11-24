@@ -15,6 +15,7 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+    // Add new product with id of the related user
     req.user.createProduct({ // Magic method of sequelize because of one-to-many association between 'User' & 'Product'
         title: title,
         price: price,
@@ -40,8 +41,11 @@ exports.postAddProduct = (req, res, next) => {
 
 // Send all products for GET '/admin/products
 exports.getProducts = (req, res, next) => {
-    Product.findAll().
-        then(products => {
+    // Product.findAll()
+    // To get only products that are associated with the current user,
+    // we use the magic method 'User.getProducts()' created by 'Sequelize Association'
+    req.user.getProducts()
+        .then(products => {
             res.render('admin-views/products', {
                 prods: products,
                 pageTitle: 'Admin Products',
@@ -62,21 +66,23 @@ exports.getEditProduct = (req, res, next) => {
     const productId = req.params.productId;
 
     // Find product with the given ID sent via query params in url
-    Product.findByPk(productId)
-        .then(
-            product => {
-                // If no product match for the given ID, redirect to home page
-                if (!product) return res.redirect("/");
+    // The power of Sequelize Association made the method 'User.getProducts({where: {...}})
+    // available. So we can get only product that related to this user - (SELECT ..JOIN..)
+    req.user.getProducts({ where: { id: productId } })
+        .then(products => {
+            const product = products[0];
+            // If no product match for the given ID, redirect to home page
+            if (!product) return res.redirect("/");
 
-                // If product found, render edit form
-                res.render("admin-views/edit-product", {
-                    pageTitle: "Edit Product",
-                    path: "/admin/edit-product",
-                    product: product,
-                    editing: isEditing // for customizing the form to be in 'edit' mode or 'add new' mode
-                });
+            // If product found, render edit form
+            res.render("admin-views/edit-product", {
+                pageTitle: "Edit Product",
+                path: "/admin/edit-product",
+                product: product,
+                editing: isEditing // for customizing the form to be in 'edit' mode or 'add new' mode
+            });
 
-            }
+        }
         )
         .catch(err => console.log(err));
 }
