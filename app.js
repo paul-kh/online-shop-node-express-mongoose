@@ -12,13 +12,13 @@ app.set('views', 'views');
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, 'public')));
 
-// Middlewares
-app.use("/", (req, res, next) => {
-    res.render('index', {
-        pageTitle: "Home Page",
-        path: "/"
-    });
-});
+/* Middlewares handling routes ****
+***********************************/
+// import route modules
+const adminRoutes = require("./routes/admin-routes");
+const shopRoutes = require("./routes/shop-routes");
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
 
 
 // Start the server at port 3000
