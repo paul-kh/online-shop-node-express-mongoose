@@ -8,10 +8,15 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-    res.render("admin-views/products", {
-        pageTitle: "Admin Products",
-        path: "/admin/products"
-    });
+    Product.findAll().
+        then(products => {
+            res.render('admin-views/products', {
+                prods: products,
+                pageTitle: 'Admin Products',
+                path: '/admin/products'
+            });
+        })
+        .catch(err => console.log(err));
 }
 
 exports.postAddProduct = (req, res, next) => {
