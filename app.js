@@ -28,6 +28,13 @@ app.use(shopRoutes);
 const errorController = require("./controllers/error-controller");
 app.use(errorController.get404);
 
+// Connect to DB -> Sync models to the DB -> Start up Node Server
+const sequelizeDB = require("./util/db-connection");
+sequelizeDB.sync()
+    .then(result => {
+        // console.log(result);
+        // Start the server at port 3000
+        app.listen(3000);
+    })
+    .catch(error => console.log(error));
 
-// Start the server at port 3000
-app.listen(3000);
