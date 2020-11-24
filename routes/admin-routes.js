@@ -5,9 +5,9 @@ const router = Express.Router();
 // Import controller module
 const adminController = require("../controllers/admin-controller");
 
-
-router.use("/add-product", adminController.getAddProduct);
-router.use("/products", adminController.getProducts);
+router.post("/add-product", adminController.postAddProduct);
+router.get("/add-product", adminController.getAddProduct);
+router.get("/products", adminController.getProducts);
 
 
 module.exports = router;
