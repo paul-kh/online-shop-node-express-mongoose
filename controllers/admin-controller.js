@@ -65,9 +65,8 @@ exports.getEditProduct = (req, res, next) => {
     // Find product with the given ID sent via query params in url
     // The power of Sequelize Association made the method 'User.getProducts({where: {...}})
     // available. So we can get only product that related to this user - (SELECT ..JOIN..)
-    req.user.getProducts({ where: { id: productId } })
-        .then(products => {
-            const product = products[0];
+    Product.findById(productId)
+        .then(product => {
             // If no product match for the given ID, redirect to home page
             if (!product) return res.redirect("/");
 
@@ -92,7 +91,7 @@ exports.postEditProduct = (req, res, next) => {
     const newDescription = req.body.description;
     const newPrice = req.body.price;
     const newImageUrl = req.body.imageUrl;
-    Product.findByPk(productId)
+    Product.findById(productId)
         .then(product => {
             product.title = newTitle;
             product.price = newPrice;
@@ -110,11 +109,8 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
     // Get product ID from the hidden input form control in the view 'products.ejs'
     const productId = req.body.productId;
-    Product.findByPk(productId)
-        .then(product => {
-            return product.destroy();
-        })
-        .then(result => {
+    Product.findByIdAndRemove(productId)
+        .then(() => {
             console.log("The product was deleted successfully!");
             res.redirect("/admin/products");
         })
