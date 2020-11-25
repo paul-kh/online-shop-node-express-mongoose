@@ -85,6 +85,25 @@ exports.postCart = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+// Delete an item from cart => POST '/cart-delete-item'
+exports.postCartDeleteProduct = (req, res, next) => {
+    // Get productId from a hidden input in the request form
+    const productId = req.body.productId;
+    req.user
+        .getCart()
+        .then(cart => {
+            return cart.getProducts({ where: { id: productId } });
+        })
+        .then(products => {
+            const product = products[0];
+            return product.cartItem.destroy();
+        })
+        .then(result => {
+            res.redirect('/cart');
+        })
+        .catch(err => console.log(err));
+};
+
 exports.getOrders = (req, res, next) => {
     res.render("shop-views/orders", {
         pageTitle: "Orders",
