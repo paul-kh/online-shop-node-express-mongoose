@@ -62,7 +62,9 @@ Product.belongsToMany(Cart, { through: CartItem });
 // * Create a dummy user with ID=1 since user login & authentication will be implemented later
 // * Start up Node Server only when DB sync is successful
 const sequelizeDB = require("./util/db-connection");
-sequelizeDB.sync()
+sequelizeDB
+    // .sync({ force: true })
+    .sync()
     .then(result => {
         // console.log(result);
 
