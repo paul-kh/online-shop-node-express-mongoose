@@ -2,7 +2,7 @@ const Product = require("../models/product");
 
 
 exports.getHomepage = (req, res, next) => {
-    Product.findAll()
+    Product.find()
         .then(products => {
             res.render('shop-views/product-list', {
                 prods: products,
@@ -16,7 +16,7 @@ exports.getHomepage = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-    Product.findAll()
+    Product.find()
         .then(products => {
             res.render('shop-views/product-list', {
                 prods: products,

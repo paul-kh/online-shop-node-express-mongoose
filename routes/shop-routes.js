@@ -1,15 +1,15 @@
 const Express = require("express");
 const router = Express.Router();
-// const shopController = require("../controllers/shop-controller");
+const shopController = require("../controllers/shop-controller");
 
 // Render home page => GET '/'
-// router.get('/', shopController.getHomepage);
+router.get('/', shopController.getHomepage);
 
 // // Render product details => GET '/product/:productId'
 // router.get('/products/:productId', shopController.getProduct);
 
 // // Render product list => GET '/products'
-// router.get('/products', shopController.getProducts);
+router.get('/products', shopController.getProducts);
 
 // // Render cart => GET '/cart'
 // router.get('/cart', shopController.getCart);
