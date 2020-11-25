@@ -15,36 +15,33 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    // Add new product with id of the related user
-    req.user.createProduct({ // Magic method of sequelize because of one-to-many association between 'User' & 'Product'
+
+    // INSERT NEW DOCUMENT/ROW INTO THE COLLECTION/TABLE
+    // * Instantiate product object from the 'Product' model to be a new document/row
+    //   and assign values to each field/column/attribute/property/key
+    // * Save to DB
+    const product = new Product({
         title: title,
         price: price,
         imageUrl: imageUrl,
-        description: description,
-    })
-        // Product.create({
-        //     title: title,
-        //     price: price,
-        //     imageUrl: imageUrl,
-        //     description: description,
-        //     userId: req.user.id
-        // })
-        .then(result => {
-            // console.log(result);
-            console.log('Created Product');
+        description: description
+    });
+
+    // Save newly created document
+    product.save()
+        .then(p => {
+            console.log("Created Product: ", p);
             res.redirect("/admin/products");
         })
-        .catch(err => {
-            console.log(err);
-        });
-};
+        .catch(error => { console.log(error) });
+}
 
 // Send all products for GET '/admin/products
 exports.getProducts = (req, res, next) => {
     // Product.findAll()
     // To get only products that are associated with the current user,
     // we use the magic method 'User.getProducts()' created by 'Sequelize Association'
-    req.user.getProducts()
+    Product.find()
         .then(products => {
             res.render('admin-views/products', {
                 prods: products,

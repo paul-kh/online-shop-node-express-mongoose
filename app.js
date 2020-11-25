@@ -1,6 +1,5 @@
 const Express = require("express");
 const path = require("path");
-const mongoose = require("mongoose");
 
 const app = Express();
 
@@ -50,10 +49,14 @@ app.use(errorController.get404);
 
 
 // DATABASE HANDLING
-
-mongoose.connect("mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority")
-    .then(result => {
-        console.log("MongoDB connection result: ", result);
+// ======================================================================================================
+// * Instantiate a mongoose object from mongoose module after installing it: $npm install --save mongoose
+// * Start connection to Atlas MongoDB
+// * Start Node server upon successul DB connection
+const mongoose = require('mongoose');
+const url = "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
+mongoose.connect(url)
+    .then(connectionResult => {
         // Start Node server
         app.listen(3000);
     })
