@@ -6,7 +6,7 @@ const shopController = require("../controllers/shop-controller");
 router.get('/', shopController.getHomepage);
 
 // // Render product details => GET '/product/:productId'
-// router.get('/products/:productId', shopController.getProduct);
+router.get('/products/:productId', shopController.getProduct);
 
 // // Render product list => GET '/products'
 router.get('/products', shopController.getProducts);
