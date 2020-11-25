@@ -6,6 +6,8 @@ const app = Express();
 // Import modules for the required models
 const User = require("./models/user");
 const Product = require("./models/product");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 // Setup view engine 'ejs'
 app.set('view engine', 'ejs');
@@ -47,6 +49,12 @@ app.use(errorController.get404);
 // * User & Product: one-to-many
 Product.belongsTo(User, { constraint: true, onDelete: 'CASCADE' })
 User.hasMany(Product); // optional for reverse
+// * User & Cart: one-to-one
+User.hasOne(Cart);
+Cart.belongsTo(User);
+// * Cart & Product: many-to-many
+Cart.belongsToMany(Product, { through: CartItem }); // CartItem is the joint table
+Product.belongsToMany(Cart, { through: CartItem });
 
 
 // DATABASE HANDLING
