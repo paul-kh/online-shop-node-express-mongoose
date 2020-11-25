@@ -8,6 +8,8 @@ const User = require("./models/user");
 const Product = require("./models/product");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
 
 // Setup view engine 'ejs'
 app.set('view engine', 'ejs');
@@ -55,6 +57,11 @@ Cart.belongsTo(User);
 // * Cart & Product: many-to-many
 Cart.belongsToMany(Product, { through: CartItem }); // CartItem is the joint table
 Product.belongsToMany(Cart, { through: CartItem });
+// * User & Order: one-to-many
+Order.belongsTo(User);
+User.hasMany(Order);
+// * Product & Order: many-to-many
+Order.belongsToMany(Product, { through: OrderItem });
 
 
 // DATABASE HANDLING
