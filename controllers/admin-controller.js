@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const user = require("../models/user");
 
 // Send form for adding new product for GET '/admin/add-product
 exports.getAddProduct = (req, res, next) => {
@@ -24,7 +25,8 @@ exports.postAddProduct = (req, res, next) => {
         title: title,
         price: price,
         imageUrl: imageUrl,
-        description: description
+        description: description,
+        userId: req.user // Mongoose will map 'req.user' = 'req.user_id'
     });
 
     // Save newly created document
