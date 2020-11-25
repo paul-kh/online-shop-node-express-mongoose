@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Add the 'user' document created by Mongoose's schema to a new property 'user' of the request object.
 // This way the 'user' can be accessible through out the App.
 app.use((req, res, next) => {
-    User.findById("5fbea21efc901139c08bd2fe")
+    User.findById("5fbecbf43d536c22e4c20ae8")
         .then(foundUser => {
             // req.user is a newly created property & it's type of Mongoose object
             // that can access all Mongoose's properties and methods.

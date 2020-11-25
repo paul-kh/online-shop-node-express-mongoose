@@ -76,15 +76,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
     // Get productId from a hidden input in the request form
     const productId = req.body.productId;
-    req.user
-        .getCart()
-        .then(cart => {
-            return cart.getProducts({ where: { id: productId } });
-        })
-        .then(products => {
-            const product = products[0];
-            return product.cartItem.destroy();
-        })
+    req.user.deleteCartItem(productId)
         .then(result => {
             res.redirect('/cart');
         })

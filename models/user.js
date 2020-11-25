@@ -24,6 +24,9 @@ const userSchema = mongoose.Schema({
             }]
     }
 });
+
+// CREATE A METHOD THAT ALLOWS USER TO ADD A PRODUCT TO THE CART //
+//==================================================================
 // Mongoose 's 'methods' object allow us to create our own function/method to work 
 // with the schema
 userSchema.methods.addToCart = function (product) {
@@ -63,5 +66,14 @@ userSchema.methods.addToCart = function (product) {
     this.cart = { items: tempCartItems };
     return this.save();
 };
+
+// CREATE A METHOD THAT ALLOWS USER TO DELETE A PRODUCT IN THE CART //
+// ===================================================================
+userSchema.methods.deleteCartItem = function (productId) {
+    this.cart.items = this.cart.items.filter(p => {
+        return p.productId != productId;
+    });
+    return this.save();
+}
 
 module.exports = mongoose.model('User', userSchema);
