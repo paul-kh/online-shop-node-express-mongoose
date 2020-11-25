@@ -16,8 +16,9 @@ const userSchema = mongoose.Schema({
         // holding all items that user added to the cart.
         items: [
             {
-                // The type of prouctId must be the type of Mongoose's ObjectId
-                productId: { type: mongoose.Schema.Types.ObjectId, required: true },
+                // The type of prouctId must be the type of Mongoose's ObjectId.
+                // Add reference/relationship with the 'Product' model
+                productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
                 quantity: { type: Number, required: true }
             }]
     }
