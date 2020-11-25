@@ -23,5 +23,44 @@ const userSchema = mongoose.Schema({
             }]
     }
 });
+// Mongoose 's 'methods' object allow us to create our own function/method to work 
+// with the schema
+userSchema.methods.addToCart = function (product) {
+    // Try to find if product was previousely added in the cart.
+    // If it's the case, increase the quantity.
+    // * Find the index in the array this.cart.items that might store the 
 
-module.exports = mongoose.model("User", userSchema);
+    //   product that is about to be added to the cart.
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+        return cp.productId.toString() === product._id.toString();
+    });
+
+    // Initialize quantity with 1, and it will be incremented 
+    // by 1 if product has been existing in the cart.
+    let newQuantity = 1;
+
+    // Intialize an array to temporarily store all current cart items
+    // that the user might have added to the cart before.
+    const tempCartItems = [...this.cart.items];
+
+    // Case: Product was previousely added to the cart
+    if (cartProductIndex >= 0) {
+        // Increment quantity
+        newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+        // Updated the array of cart items with the newly incremented quantity
+        tempCartItems[cartProductIndex].quantity = newQuantity;
+    }
+    // Case: Product has never been previousely added to cart ==> findIndex() return -1
+    else {
+        // Add new product(id & quantity) to the array of cart items
+        tempCartItems.push({
+            productId: product._id,
+            quantity: newQuantity
+        });
+    }
+    // Assign cart items to the 'cart' property of the model
+    this.cart = { items: tempCartItems };
+    return this.save();
+};
+
+module.exports = mongoose.model('User', userSchema);
