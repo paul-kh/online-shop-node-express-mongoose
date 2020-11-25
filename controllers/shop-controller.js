@@ -43,13 +43,14 @@ exports.getProduct = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
-
-    req.user.getCart()
-        .then(cart => {
-            // console.log(cart);
-            return cart.getProducts();
-        })
-        .then(products => {
+    req.user
+        // Fetch all the related fields of the product from the 'products' collection
+        // Because we need 'title' of the product.
+        .populate('cart.items.productId')
+        .execPopulate() // to make .populate() return a promise for the then bolck
+        .then(user => {
+            const products = user.cart.items;
+            console.log('User.cart.items: ', products);
             res.render('shop-views/cart', {
                 path: '/cart',
                 pageTitle: 'Your Cart',
@@ -57,7 +58,7 @@ exports.getCart = (req, res, next) => {
             });
         })
         .catch(err => console.log(err));
-}
+};
 
 exports.postCart = (req, res, next) => {
     const productId = req.body.productId;

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Product = require("./product");
 
 // Instantiate a mongoose schema 'userSchema' by calling
 // the constructor of the class 'Schema' of mongoose module.
