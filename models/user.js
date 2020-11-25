@@ -76,4 +76,10 @@ userSchema.methods.deleteCartItem = function (productId) {
     return this.save();
 }
 
+// CREATE A METHOD TO CLEAR CART AFTER ORDER IS PLACED
+userSchema.methods.clearCart = function () {
+    this.cart = { items: [] };
+    return this.save();
+};
+
 module.exports = mongoose.model('User', userSchema);

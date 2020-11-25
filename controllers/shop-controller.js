@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Order = require("../models/order");
 
 exports.getHomepage = (req, res, next) => {
     Product.find()
@@ -67,7 +68,7 @@ exports.postCart = (req, res, next) => {
             return req.user.addToCart(foundProduct);
         })
         .then(resultOfPostCart => {
-            console.log("PostCart result: ", resultOfPostCart);
+            // console.log("PostCart result: ", resultOfPostCart);
             res.redirect("/cart");
         })
         .catch(err => { console.log(err) });
@@ -84,29 +85,24 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-    let fetchedCart;
     req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart;
-            return cart.getProducts();
+        .populate("cart.items.productId")
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items.map(item => {
+                return { quantity: item.quantity, product: { ...item.productId } };
+                // return { quantity: item.quantity, product: { ...item.productId._doc } };
+            });
+            const order = new Order({
+                user: {
+                    name: req.user.name,
+                    userId: req.user
+                },
+                products: products
+            });
+            return order.save();
         })
-        .then(products => {
-            return req.user
-                .createOrder()
-                .then(order => {
-                    return order.addProducts(
-                        products.map(product => {
-                            product.orderItem = { quantity: product.cartItem.quantity };
-                            return product;
-                        })
-                    );
-                })
-                .catch(err => console.log(err));
-        })
-        .then(result => {
-            return fetchedCart.setProducts(null);
-        })
+        .then(() => req.user.clearCart())
         .then(result => {
             res.redirect('/orders');
         })
@@ -114,10 +110,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-    req.user
-        // The power of association allows including 'products' (sequelize pluralized from 'product')
-        // in the result of user.getOrders()
-        .getOrders({ include: ['products'] })
+    Order.find({ 'user.userId': req.user._id })
         .then(orders => {
             res.render('shop-views/orders', {
                 path: '/orders',
