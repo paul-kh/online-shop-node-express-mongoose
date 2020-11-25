@@ -79,7 +79,10 @@ sequelizeDB
         return user;
     })
     .then(user => {
-        // console.log(user);
+        // User.createCart() is made availabe by user-cart association
+        return user.createCart();
+    })
+    .then(cart => {
         // Start the server at port 3000 upon successful sync to DB
         app.listen(3000);
     })

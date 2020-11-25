@@ -29,10 +29,20 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-    res.render("shop-views/cart", {
-        pageTitle: "Cart",
-        path: "/cart"
-    });
+
+    req.user.getCart()
+        .then(cart => {
+            // console.log(cart);
+            return cart.getProducts();
+        })
+        .then(products => {
+            res.render('shop/cart', {
+                path: '/cart',
+                pageTitle: 'Your Cart',
+                products: products
+            });
+        })
+        .catch(err => console.log(err));
 }
 
 exports.getOrders = (req, res, next) => {
