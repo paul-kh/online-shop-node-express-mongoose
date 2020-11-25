@@ -4,7 +4,7 @@ const path = require("path");
 const app = Express();
 
 // Import modules for the required models
-// const User = require("./models/user");
+const User = require("./models/user");
 // const Product = require("./models/product");
 // const Cart = require("./models/cart");
 // const CartItem = require("./models/cart-item");
@@ -23,18 +23,18 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Register a dummy user as a logged-in user.
-// Add the sequelize's 'user' object to a new property 'user' of the request object.
+// Add the 'user' document created by Mongoose's schema to a new property 'user' of the request object.
 // This way the 'user' can be accessible through out the App.
-// app.use((req, res, next) => {
-//     User.findByPk(1)
-//         .then(user => {
-//             // req.user is a newly created property & it's type of sequelize object
-//             // that can access all sequelize's properties and methods.
-//             req.user = user;
-//             next();
-//         })
-//         .catch(err => console.log(err));
-// })
+app.use((req, res, next) => {
+    User.findById("5fbea21efc901139c08bd2fe")
+        .then(foundUser => {
+            // req.user is a newly created property & it's type of Mongoose object
+            // that can access all Mongoose's properties and methods.
+            req.user = foundUser;
+            next();
+        })
+        .catch(err => console.log(err));
+})
 
 
 // Middlewares handling routes
@@ -57,6 +57,20 @@ const mongoose = require('mongoose');
 const url = "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
 mongoose.connect(url)
     .then(connectionResult => {
+        // Create one user (dummy) if no user exists in the 'users' collection
+        User.findOne()
+            .then(foundUser => {
+                if (!foundUser) {
+                    const user = new User({
+                        name: "Paul",
+                        email: "paul@test.com",
+                        cart: {
+                            items: []
+                        }
+                    });
+                    user.save();
+                }
+            });
         // Start Node server
         app.listen(3000);
     })
