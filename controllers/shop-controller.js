@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const { getProducts } = require("./admin-controller");
+
 
 exports.getHomepage = (req, res, next) => {
     Product.findAll()
