@@ -1,7 +1,7 @@
 {
-  "name": "online-shop-node-express-sequalize",
+  "name": "online-shop-node-express-mongoose",
   "version": "1.0.0",
-  "description": "A typical online shop created by using Node.js, Express.js, Ejs, MySQL, Sequelize, and other packages.",
+  "description": "A typical online shop created by using Node.js, Express.js, Ejs, MySQL, Mongoose, and other packages.",
   "main": "app.js",
   "scripts": {
     "test": "n/a",
@@ -25,8 +25,7 @@
     "body-parser": "^1.19.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
-    "mysql2": "^2.2.5",
-    "sequelize": "^6.3.5"
+    "mongoose": "^5.10.15"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
