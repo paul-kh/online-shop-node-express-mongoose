@@ -1,6 +1,5 @@
 const Express = require("express");
 const path = require("path");
-
 const app = Express();
 
 // Import modules for the required models
@@ -17,6 +16,12 @@ app.set('views', 'views');
 
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, 'public')));
+
+// Middleware for managing session
+const session = require("express-session");
+app.use(session({ secret: "my secret", resave: false, saveUninitialized: false }));
+// 'secret' is random hashed session ID. 
+// In production env, value of 'secret' should be a long string so it's more secure - client is hard to guess.
 
 // Middleware for parsing request's body to json format
 const bodyParser = require("body-parser");
@@ -36,17 +41,17 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 })
 
-
 // Middlewares handling routes
 const adminRoutes = require("./routes/admin-routes");
 const shopRoutes = require("./routes/shop-routes");
+const authRoutes = require("./routes/auth-routes");
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 // Handle 404
 const errorController = require("./controllers/error-controller");
 app.use(errorController.get404);
-
 
 // DATABASE HANDLING
 // ======================================================================================================

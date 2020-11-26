@@ -51,7 +51,6 @@ exports.getCart = (req, res, next) => {
         .execPopulate() // to make .populate() return a promise for the then bolck
         .then(user => {
             const products = user.cart.items;
-            console.log('User.cart.items: ', products);
             res.render('shop-views/cart', {
                 path: '/cart',
                 pageTitle: 'Your Cart',
