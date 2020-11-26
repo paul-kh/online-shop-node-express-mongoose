@@ -1,6 +1,7 @@
 const Express = require("express");
 const path = require("path");
 const app = Express();
+const MONGODB_URI = "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
 
 // Import modules for the required models
 const User = require("./models/user");
@@ -17,11 +18,27 @@ app.set('views', 'views');
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, 'public')));
 
-// Middleware for managing session
-const session = require("express-session");
-app.use(session({ secret: "my secret", resave: false, saveUninitialized: false }));
-// 'secret' is random hashed session ID. 
-// In production env, value of 'secret' should be a long string so it's more secure - client is hard to guess.
+// SETUP & MANAGE SESSIONS //
+// ============================================
+// * Store session in MongoDB
+const session = require("express-session"); // initialize session object ('express-session' package) for managing sessions
+const storeSessionsInMongoDB = require("connect-mongodb-session")(session); // initialize a class for session mongodb storage ('connect-mongodb-session' package)
+const sessionMongoDbStorage = new storeSessionsInMongoDB({ // create an instance for storing sessions in mongodb
+    uri: MONGODB_URI,
+    collection: "sessions"
+});
+
+// * Middleware for managing session
+app.use(session({
+    // 'secret' is random hashed session ID. 
+    // In production env, value of 'secret' should be a long string so it's more secure - client is hard to guess.
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: sessionMongoDbStorage
+}));
+// ==================================================
+
 
 // Middleware for parsing request's body to json format
 const bodyParser = require("body-parser");
@@ -59,8 +76,7 @@ app.use(errorController.get404);
 // * Start connection to Atlas MongoDB
 // * Start Node server upon successul DB connection
 const mongoose = require('mongoose');
-const url = "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
-mongoose.connect(url)
+mongoose.connect(MONGODB_URI)
     .then(connectionResult => {
         // Create one user (dummy) if no user exists in the 'users' collection
         User.findOne()
