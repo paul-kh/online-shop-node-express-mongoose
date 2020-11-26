@@ -44,19 +44,22 @@ app.use(session({
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Register a dummy user as a logged-in user.
+// Register a session user as a logged-in user.
 // Add the 'user' document created by Mongoose's schema to a new property 'user' of the request object.
 // This way the 'user' can be accessible through out the App.
 app.use((req, res, next) => {
-    User.findById("5fbecbf43d536c22e4c20ae8")
-        .then(foundUser => {
+    if (!req.session.user) {
+        return next();
+    }
+    User.findById(req.session.user._id)
+        .then(user => {
             // req.user is a newly created property & it's type of Mongoose object
             // that can access all Mongoose's properties and methods.
-            req.user = foundUser;
+            req.user = user;
             next();
         })
         .catch(err => console.log(err));
-})
+});
 
 // Middlewares handling routes
 const adminRoutes = require("./routes/admin-routes");
