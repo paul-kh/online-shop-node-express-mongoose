@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 exports.getLogin = (req, res, next) => {
     // We can access the session variables associated to each request through out the application
     // console.log(req.session.isLoggedIn);
@@ -7,9 +8,9 @@ exports.getLogin = (req, res, next) => {
     res.render("auth-views/login", {
         path: "/login",
         pageTitle: "Login",
-        isAuthenticated: false
+        isAuthenticated: req.session.isLoggedIn
     });
-}
+};
 
 exports.postLogin = (req, res, next) => {
     // Create session variables and set their values
@@ -21,19 +22,33 @@ exports.postLogin = (req, res, next) => {
     // ... more session variables...
 
     // Store session variables in DB by associating the logged user
-    User.findById('5fbecbf43d536c22e4c20ae8')
-        .then(user => {
-            req.session.isLoggedIn = true;
-            req.session.user = user;
-            // Even though we don't call the 'save()' method, the session is going to stored in DB. 
-            // Here we call save() because we want to redirect after saving complete
-            req.session.save(err => {
-                // console.log(err);
-                res.redirect('/');
-            });
+    // * Get email & password from the user's input
+    const email = req.body.email;
+    const password = req.body.password;
+    // * Find user by email
+    // * If not found => redirect to '/login'
+    // * If found:
+    // * Decrypt the password & compare password
+    // * - If match, create sessions for the user & redirect to '/'
+    // * - If not match, redirect to '/login' or flash message
+    User.findOne({ email: email })
+        .then(foundUser => {
+            if (!foundUser) return res.redirect("/login");
+            bcrypt.compare(password, foundUser.password)
+                .then(compareResult => {
+                    if (compareResult) {
+                        req.session.isLoggedIn = true;
+                        req.session.user = foundUser;
+                        req.session.save(err => {
+                            // console.log(err);
+                            return res.redirect("/");
+                        });
+                    }
+                })
+                .catch(bcryptCompareErr => { console.log(bcryptCompareErr) });
         })
         .catch(err => console.log(err));
-}
+};
 
 exports.postLogout = (req, res, next) => {
     // Remove session in the DB for the current request
@@ -41,4 +56,38 @@ exports.postLogout = (req, res, next) => {
         console.log(err);
         res.redirect("/login");
     });
+};
+
+exports.getSignup = (req, res, next) => {
+    res.render("auth-views/signup", {
+        pageTitle: "Signup Page",
+        path: "/signup",
+        isAuthenticated: req.session.isLoggedIn
+    });
+};
+
+exports.postSignup = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+
+    // Check if email already exists
+    User.findOne({ email: email })
+        .then(foundUser => {
+            if (foundUser) return res.redirect("/signup");
+            bcrypt.hash(password, 12)
+                .then(hashedPassword => {
+                    const user = new User({
+                        email: email,
+                        password: hashedPassword,
+                        cart: { items: [] }
+                    });
+                    return user.save();
+                })
+                .then(result => {
+                    res.redirect("/login");
+                })
+                .catch(err => console.log(err));
+        })
+        .catch(err => { console.log(err) });
 }

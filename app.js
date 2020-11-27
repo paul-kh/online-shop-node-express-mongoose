@@ -61,17 +61,18 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 });
 
-// Middlewares handling routes
+// ROUTE MIDDLEWARES
+// ===========================================================
 const adminRoutes = require("./routes/admin-routes");
 const shopRoutes = require("./routes/shop-routes");
 const authRoutes = require("./routes/auth-routes");
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
 // Handle 404
 const errorController = require("./controllers/error-controller");
 app.use(errorController.get404);
+// ============================================================
 
 // DATABASE HANDLING
 // ======================================================================================================
@@ -86,7 +87,7 @@ mongoose.connect(MONGODB_URI)
             .then(foundUser => {
                 if (!foundUser) {
                     const user = new User({
-                        name: "Paul",
+                        password: "Paul",
                         email: "paul@test.com",
                         cart: {
                             items: []
