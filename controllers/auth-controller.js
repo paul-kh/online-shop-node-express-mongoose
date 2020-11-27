@@ -39,11 +39,12 @@ exports.postLogin = (req, res, next) => {
                     if (compareResult) {
                         req.session.isLoggedIn = true;
                         req.session.user = foundUser;
-                        req.session.save(err => {
+                        return req.session.save(err => {
                             // console.log(err);
-                            return res.redirect("/");
+                            res.redirect("/");
                         });
                     }
+                    res.redirect("/login");
                 })
                 .catch(bcryptCompareErr => { console.log(bcryptCompareErr) });
         })
