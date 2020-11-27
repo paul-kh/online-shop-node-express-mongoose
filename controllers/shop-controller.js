@@ -4,11 +4,12 @@ const Order = require("../models/order");
 exports.getHomepage = (req, res, next) => {
     Product.find()
         .then(products => {
+            // console.log("token: ", req.csrfToken());
+            // console.log("products: ", products);
             res.render('shop-views/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
                 path: '/',
-                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
@@ -24,7 +25,6 @@ exports.getProducts = (req, res, next) => {
                 pageTitle: 'All Products',
                 path: '/products',
                 prods: products,
-                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
@@ -41,7 +41,6 @@ exports.getProduct = (req, res, next) => {
                 product: product,
                 pageTitle: product.title,
                 path: '/products',
-                isAuthenticated: req.session.isLoggedIn
             })
         })
         .catch(err => console.log(err));
@@ -59,7 +58,6 @@ exports.getCart = (req, res, next) => {
                 path: '/cart',
                 pageTitle: 'Your Cart',
                 products: products,
-                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => console.log(err));
@@ -120,7 +118,6 @@ exports.getOrders = (req, res, next) => {
                 path: '/orders',
                 pageTitle: 'Your Orders',
                 orders: orders,
-                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => { console.log(err) });

@@ -4,11 +4,9 @@ exports.getLogin = (req, res, next) => {
     // We can access the session variables associated to each request through out the application
     // console.log(req.session.isLoggedIn);
     // console.log("Client's cookie:", req.session.clientCookie);
-
     res.render("auth-views/login", {
         path: "/login",
         pageTitle: "Login",
-        isAuthenticated: req.session.isLoggedIn
     });
 };
 
@@ -40,7 +38,7 @@ exports.postLogin = (req, res, next) => {
                         req.session.isLoggedIn = true;
                         req.session.user = foundUser;
                         return req.session.save(err => {
-                            // console.log(err);
+                            console.log(err);
                             res.redirect("/");
                         });
                     }
