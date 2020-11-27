@@ -7,6 +7,10 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
+        <!-- Access the flash message and display it in case there's one -->
+        <% if (errorMsg) { %>
+        <div class="user-message user-message--error"><%= errorMsg %></div>
+        <% } %>
         <form class="login-form" action="/signup" method="POST">
             <div class="form-control">
                 <label for="email">E-Mail</label>

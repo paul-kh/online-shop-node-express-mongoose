@@ -1,12 +1,16 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 exports.getLogin = (req, res, next) => {
-    // We can access the session variables associated to each request through out the application
-    // console.log(req.session.isLoggedIn);
-    // console.log("Client's cookie:", req.session.clientCookie);
+    // Set errorMsg=null if flash() dosn't produce any message
+    /* This way, we can hide html element (<div>) that will hold the errorMsg to display.
+    /* flash() return empty array [] if no message */
+    let msg = req.flash("errorMsg"); // access 'errorMsg' property from 'flash' object in the session db collection
+    msg.length > 0 ? msg = msg[0] : msg = null;
+
     res.render("auth-views/login", {
         path: "/login",
         pageTitle: "Login",
+        errorMsg: msg
     });
 };
 
@@ -31,7 +35,10 @@ exports.postLogin = (req, res, next) => {
     // * - If not match, redirect to '/login' or flash message
     User.findOne({ email: email })
         .then(foundUser => {
-            if (!foundUser) return res.redirect("/login");
+            if (!foundUser) {
+                req.flash("errorMsg", "Invalid email or password.");
+                return res.redirect("/login");
+            }
             bcrypt.compare(password, foundUser.password)
                 .then(compareResult => {
                     if (compareResult) {
@@ -58,10 +65,12 @@ exports.postLogout = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+    let msg = req.flash("errorMsg"); // access 'errorMsg' property from 'flash' object in the session db collection
+    msg.length > 0 ? msg = msg[0] : msg = null;
     res.render("auth-views/signup", {
         pageTitle: "Signup Page",
         path: "/signup",
-        isAuthenticated: req.session.isLoggedIn
+        errorMsg: msg
     });
 };
 
@@ -73,7 +82,10 @@ exports.postSignup = (req, res, next) => {
     // Check if email already exists
     User.findOne({ email: email })
         .then(foundUser => {
-            if (foundUser) return res.redirect("/signup");
+            if (foundUser) {
+                req.flash("errorMsg", "The email was already used before.");
+                return res.redirect("/signup");
+            }
             bcrypt.hash(password, 12)
                 .then(hashedPassword => {
                     const user = new User({

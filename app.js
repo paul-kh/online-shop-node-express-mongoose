@@ -4,6 +4,7 @@ const app = Express();
 const MONGODB_URI = "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
 const User = require("./models/user");
 
+
 // MIDDLEWARE FOR PARSING REQUEST'S BODY TO JSON FORMAT
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -60,7 +61,12 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 });
 
-// RESPOND REQUIRED VALUES TO ALL VIEWS FOR RENDERING
+// FLASHING MESSAGE TO USER
+/* Note: The middleware must run after the middleware that create the (user) session*/
+const flashMsg = require("connect-flash"); // $npm install connect-flash
+app.use(flashMsg()); // middleware to tell Express to allow flash() to use the session
+
+// PASS GENERAL DATA TO ALL VIEWS FOR RENDERING
 /*  > Create local variables & values of the 'response' object
     > Respond the variables & value to every request sent from all views 
 */
