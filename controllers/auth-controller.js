@@ -1,5 +1,14 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
+
+const transporter = nodemailer.createTransport(sendgridTransport({
+    auth: {
+        api_key: "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"
+    }
+}));
+
 exports.getLogin = (req, res, next) => {
     // Set errorMsg=null if flash() dosn't produce any message
     /* This way, we can hide html element (<div>) that will hold the errorMsg to display.
@@ -97,6 +106,17 @@ exports.postSignup = (req, res, next) => {
                 })
                 .then(result => {
                     res.redirect("/login");
+                    return transporter.sendMail({
+                        to: email,
+                        from: 'test-email@fake-domain.com',
+                        subject: "Signup succeeded",
+                        html: "<h1> You have successfully signed up!</h1>"
+                    })
+                        .catch(error => {
+                            if (error) {
+                                return console.log("Error: The email will be sent once sender identity is verified.\nThe server is still running...");
+                            }
+                        });
                 })
                 .catch(err => console.log(err));
         })
