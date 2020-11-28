@@ -42,7 +42,7 @@ exports.getProducts = (req, res, next) => {
     // Product.findAll()
     // To get only products that are associated with the current user,
     // we use the magic method 'User.getProducts()' created by 'Sequelize Association'
-    Product.find()
+    Product.find({ userId: req.user._id })
         .then(products => {
             res.render('admin-views/products', {
                 prods: products,
@@ -70,15 +70,13 @@ exports.getEditProduct = (req, res, next) => {
         .then(product => {
             // If no product match for the given ID, redirect to home page
             if (!product) return res.redirect("/");
-
-            // If product found, render edit form
+            // If product found
             res.render("admin-views/edit-product", {
                 pageTitle: "Edit Product",
                 path: "/admin/edit-product",
                 product: product,
                 editing: isEditing, // for customizing the form to be in 'edit' mode or 'add new' mode
             });
-
         }
         )
         .catch(err => console.log(err));
@@ -94,6 +92,10 @@ exports.postEditProduct = (req, res, next) => {
     const newImageUrl = req.body.imageUrl;
     Product.findById(productId)
         .then(product => {
+            // If login user doesn't matche the user who created the product
+            if (product.userId.toString() != req.user._id.toString()) return res.redirect("/");
+
+            // If login user matches the user who created the product
             product.title = newTitle;
             product.price = newPrice;
             product.description = newDescription;
@@ -110,7 +112,7 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
     // Get product ID from the hidden input form control in the view 'products.ejs'
     const productId = req.body.productId;
-    Product.findByIdAndRemove(productId)
+    Product.deleteOne({ _id: productId, userId: req.user._id })
         .then(() => {
             console.log("The product was deleted successfully!");
             res.redirect("/admin/products");
