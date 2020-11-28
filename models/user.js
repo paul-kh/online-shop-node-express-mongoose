@@ -12,6 +12,8 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    pwdResetToken: String,
+    pwdResetTokenExpiration: Date,
     cart: {
         // Defined embeded document for cart items which should be an array
         // holding all items that user added to the cart.
