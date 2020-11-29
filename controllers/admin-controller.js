@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 const user = require("../models/user");
 
-// Send form for adding new product for GET '/admin/add-product
+// GET '/admin/add-product
 exports.getAddProduct = (req, res, next) => {
     res.render("admin-views/edit-product", {
         pageTitle: "Add Product",
@@ -10,7 +10,7 @@ exports.getAddProduct = (req, res, next) => {
     });
 }
 
-// Receive POST req for adding new product, and save it in DB - POST '/admin/add-product
+// POST '/admin/add-product
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
@@ -37,7 +37,7 @@ exports.postAddProduct = (req, res, next) => {
         .catch(error => { console.log(error) });
 }
 
-// Send all products for GET '/admin/products
+// Show admin's product list => GET '/admin/products
 exports.getProducts = (req, res, next) => {
     // Product.findAll()
     // To get only products that are associated with the current user,
@@ -54,7 +54,7 @@ exports.getProducts = (req, res, next) => {
 }
 
 
-// Send form for editing a product - GET '/admin/edit-product
+// Render product edit form => GET '/admin/edit-product
 exports.getEditProduct = (req, res, next) => {
     // Get the 'edit' param sent via url from the client -  url: /admin/edit-product/id?edit=true'
     const isEditing = req.query.edit;
@@ -82,7 +82,7 @@ exports.getEditProduct = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
-// Receive POST req for editing a product, and update it in DB - POST '/admin/edit-product/'
+// Update the edited product in DB => POST '/admin/edit-product/'
 exports.postEditProduct = (req, res, next) => {
     // Get values of all the form fields sent via POST request
     const productId = req.body.productId; // This was sent via a hidden input/form control named 'productId' in the view 'edit-product.ejs'
@@ -109,6 +109,7 @@ exports.postEditProduct = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
+// Delete a product => POST '/admin/delete'
 exports.postDeleteProduct = (req, res, next) => {
     // Get product ID from the hidden input form control in the view 'products.ejs'
     const productId = req.body.productId;

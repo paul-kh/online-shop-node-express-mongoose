@@ -10,6 +10,7 @@ const transporter = nodemailer.createTransport(sendgridTransport({
     }
 }));
 
+// Show the login page => GET '/login'
 exports.getLogin = (req, res, next) => {
     // Set errorMsg=null if flash() dosn't produce any message
     /* This way, we can hide html element (<div>) that will hold the errorMsg to display.
@@ -24,6 +25,7 @@ exports.getLogin = (req, res, next) => {
     });
 };
 
+// Authenticate the user's login request => POST '/login'
 exports.postLogin = (req, res, next) => {
     // Create session variables and set their values
     // The variables and values will be stored in mongdb ('sessions' collection)
@@ -52,8 +54,12 @@ exports.postLogin = (req, res, next) => {
             bcrypt.compare(password, foundUser.password)
                 .then(compareResult => {
                     if (compareResult) {
-                        // create session variables & store them in DB
+                        // Create property 'isLoggedIn' of the session object and set value to 'true'
+                        // The value of this property will be used to set value for variable of 'res.locals.isAuthenticated' 
+                        // by app.js to pass to all render views "res.render()"
                         req.session.isLoggedIn = true;
+                        // Create property session.user and will be used to set value for 'res.locals.user' in 'app.js'
+                        // to pass data as "logged-in user" object for the entire time the user stays logged in.  
                         req.session.user = foundUser;
                         return req.session.save(err => {
                             console.log(err);
@@ -68,6 +74,7 @@ exports.postLogin = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+// Log the currently logged-in user out => POST '/loggout'
 exports.postLogout = (req, res, next) => {
     // Remove session in the DB for the current request
     req.session.destroy(err => {
@@ -76,6 +83,7 @@ exports.postLogout = (req, res, next) => {
     });
 };
 
+// Show Signup page/form => GET '/signup'
 exports.getSignup = (req, res, next) => {
     let msg = req.flash("errorMsg"); // access 'errorMsg' property from 'flash' object in the session db collection
     msg.length > 0 ? msg = msg[0] : msg = null;
@@ -86,6 +94,7 @@ exports.getSignup = (req, res, next) => {
     });
 };
 
+// Process a user's signup request => POST '/signup'
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -126,22 +135,24 @@ exports.postSignup = (req, res, next) => {
         .catch(err => { console.log(err) });
 }
 
-exports.getPasswordResetMethod = (req, res, next) => {
+// Render password request form => GET '/password-reset-email'
+exports.getPasswordResetEmail = (req, res, next) => {
     let msg = req.flash("errorMsg"); // access 'errorMsg' property from 'flash' object in the session db collection
     msg.length > 0 ? msg = msg[0] : msg = null;
-    res.render("auth-views/password-reset-method", {
+    res.render("auth-views/password-reset-email", {
         pageTitle: "Reset Password",
         path: "/reset-password-method",
         errorMsg: msg
     });
 }
 
-exports.postPasswordResetMethod = (req, res, next) => {
+// Receive & Process password request form => POST '/password-reset-method'
+exports.postPasswordResetEmail = (req, res, next) => {
     // Create a token to be included in a password-reset link of email that is sent to the user
     crypto.randomBytes(32, (err, buffer) => {
         if (err) {
             console.log("Crypto Error:", err);
-            return res.redirect("/reset-password-method");
+            return res.redirect("/reset-password-email");
         }
         const token = buffer.toString("hex"); // convert buffer's code (randomized and hashed code) to hexa string
 
@@ -151,7 +162,7 @@ exports.postPasswordResetMethod = (req, res, next) => {
                 // If the given email doesn't match any user
                 if (!user) {
                     req.flash("errorMsg", "The email doesn't match any account.");
-                    return res.redirect("/password-reset-method");
+                    return res.redirect("/password-reset-email");
                 }
                 // If the given email matches a user
                 // * Add token & its expiration date to user data in DB
@@ -184,6 +195,7 @@ exports.postPasswordResetMethod = (req, res, next) => {
     });
 }
 
+// Render password reset form => GET '/password-reset/:passwordToken'
 exports.getPasswordReset = (req, res, next) => {
     const passwordToken = req.params.passwordToken;
 
@@ -205,6 +217,7 @@ exports.getPasswordReset = (req, res, next) => {
         .catch(err => { console.log(err) });
 }
 
+// Process password reset form => POST '/password-reset'
 exports.postPasswordReset = (req, res, next) => {
     const newPassword = req.body.password;
     const userId = req.body.userId;

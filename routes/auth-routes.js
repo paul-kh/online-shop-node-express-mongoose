@@ -16,9 +16,9 @@ router.get("/signup", authController.getSignup);
 
 router.post("/signup", authController.postSignup);
 
-router.get("/password-reset-method", authController.getPasswordResetMethod);
+router.get("/password-reset-email", authController.getPasswordResetEmail);
 
-router.post("/password-reset-method", authController.postPasswordResetMethod);
+router.post("/password-reset-email", authController.postPasswordResetEmail);
 
 router.get("/password-reset/:passwordToken", authController.getPasswordReset)
 

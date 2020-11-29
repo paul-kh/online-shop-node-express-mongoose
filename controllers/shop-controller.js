@@ -1,11 +1,10 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
 
+// Homepage (index.ejs) => GET '/'
 exports.getHomepage = (req, res, next) => {
     Product.find()
         .then(products => {
-            // console.log("token: ", req.csrfToken());
-            // console.log("products: ", products);
             res.render('shop-views/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
@@ -16,7 +15,7 @@ exports.getHomepage = (req, res, next) => {
             console.log(err);
         });
 }
-
+// Product list => GET '/products'
 exports.getProducts = (req, res, next) => {
     Product.find()
         .then(products => {
@@ -32,7 +31,7 @@ exports.getProducts = (req, res, next) => {
         });
 };
 
-// GET Product Details
+// Product Details  => GET '/product/:productId'
 exports.getProduct = (req, res, next) => {
     Product.findById(req.params.productId)
         .then(product => {
@@ -46,6 +45,7 @@ exports.getProduct = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
+// Show products in the cart => GET '/cart'
 exports.getCart = (req, res, next) => {
     req.user
         // Fetch all the related fields of the product from the 'products' collection
@@ -63,6 +63,7 @@ exports.getCart = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+// Add a product to the cart => POST '/cart'
 exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
     Product.findById(productId)
@@ -75,7 +76,8 @@ exports.postCart = (req, res, next) => {
         })
         .catch(err => { console.log(err) });
 }
-// Delete an item from cart => POST '/cart-delete-item'
+
+// Delete a product/item from the cart => POST '/cart-delete-item'
 exports.postCartDeleteProduct = (req, res, next) => {
     // Get productId from a hidden input in the request form
     const productId = req.body.productId;
@@ -86,6 +88,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
         .catch(err => console.log(err));
 };
 
+// Place an order for the products in the cart => POST '/orders'
 exports.postOrder = (req, res, next) => {
     req.user
         .populate("cart.items.productId")
@@ -111,6 +114,7 @@ exports.postOrder = (req, res, next) => {
         .catch(err => { console.log(err) });
 };
 
+// Show order information => GET '/orders'
 exports.getOrders = (req, res, next) => {
     Order.find({ 'user.userId': req.user._id })
         .then(orders => {
