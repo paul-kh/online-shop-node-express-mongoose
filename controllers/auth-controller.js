@@ -91,7 +91,12 @@ exports.getSignup = (req, res, next) => {
     res.render("auth-views/signup", {
         pageTitle: "Signup Page",
         path: "/signup",
-        errorMsg: msg
+        errorMsg: msg,
+        oldData: {
+            email: "",
+            password: "",
+            confirmPassword: ""
+        }
     });
 };
 
@@ -110,7 +115,12 @@ exports.postSignup = (req, res, next) => {
         return res.status(422).render("auth-views/signup", {
            path: "/signup",
            pageTitle: "Signup",
-           errorMsg: errors.array()[0].msg
+           errorMsg: errors.array()[0].msg,
+           oldData: {
+               email: email,
+               password: password,
+               confirmPassword: confirmPassword
+           }
         });
     }
 

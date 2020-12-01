@@ -23,6 +23,7 @@ router.post(
         check("email")
             .isEmail()
             .withMessage("Please enter a valid email")
+            .normalizeEmail() // Lowercasing and trim (remove white space) the input email
             .custom((emailValue, { req }) => {
                 // if (emailValue === 'test@test.com') {
                 //   throw new Error('This email address is forbidden.');
@@ -39,14 +40,18 @@ router.post(
         // 'body' is an alternative for 'check'
         body("password", "Invalide password")
             .isLength({min: 5})
+            .trim()
             .isAlphanumeric(),
-        body("confirmPassword").custom((confirmPwdValue, {req}) => {
-            if (confirmPwdValue !== req.body.password) {
-                throw new Error("The confirm password has to match the password."); // 'throw' implicit the 'return' keyword
-            }
-            // if confirmPassword === password
-            return true;
-            })
+        body("confirmPassword")
+            .trim()
+            // Check for equality betwen 'confirm pasword' and 'password'
+            .custom((confirmPwdValue, {req}) => {
+                if (confirmPwdValue !== req.body.password) {
+                    throw new Error("The confirm password has to match the password."); // 'throw' implicit the 'return' keyword
+                }
+                // if confirmPassword === password
+                return true;
+                })
     ],
     authController.postSignup
     );
