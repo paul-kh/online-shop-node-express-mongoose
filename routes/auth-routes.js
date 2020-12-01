@@ -1,6 +1,7 @@
 const Express = require("express");
-
 const router = Express.Router();
+const { check, body } = require("express-validator/check");
+const User = require("../models/user");
 
 const authController = require("../controllers/auth-controller");
 const { route } = require("./admin-routes");
@@ -14,7 +15,41 @@ router.post("/logout", authController.postLogout);
 
 router.get("/signup", authController.getSignup);
 
-router.post("/signup", authController.postSignup);
+router.post(
+    "/signup",
+    // We can wrap all the validator functions in an array to group all
+    // validating middlewares. However, this is optional.
+    [
+        check("email")
+            .isEmail()
+            .withMessage("Please enter a valid email")
+            .custom((emailValue, { req }) => {
+                // if (emailValue === 'test@test.com') {
+                //   throw new Error('This email address is forbidden.');
+                // }
+                // return true;
+
+                // Check for email existence
+                return User.findOne({email: emailValue}).then(userDoc => {
+                    if (userDoc) {
+                        return Promise.reject("The email was already taken by someone else. Please pick a new one.");
+                    }
+                });
+            }),
+        // 'body' is an alternative for 'check'
+        body("password", "Invalide password")
+            .isLength({min: 5})
+            .isAlphanumeric(),
+        body("confirmPassword").custom((confirmPwdValue, {req}) => {
+            if (confirmPwdValue !== req.body.password) {
+                throw new Error("The confirm password has to match the password."); // 'throw' implicit the 'return' keyword
+            }
+            // if confirmPassword === password
+            return true;
+            })
+    ],
+    authController.postSignup
+    );
 
 router.get("/password-reset-email", authController.getPasswordResetEmail);
 

@@ -1,6 +1,6 @@
-const User = require("../models/user");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
+const { validationResult } = require("express-validator/check");
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 
@@ -10,6 +10,7 @@ const transporter = nodemailer.createTransport(sendgridTransport({
     }
 }));
 
+const User = require("../models/user");
 // Show the login page => GET '/login'
 exports.getLogin = (req, res, next) => {
     // Set errorMsg=null if flash() dosn't produce any message
@@ -99,40 +100,44 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
+    // Get validation result created by check() in auth routes
+    const errors = validationResult(req);
 
-    // Check if email already exists
-    User.findOne({ email: email })
-        .then(foundUser => {
-            if (foundUser) {
-                req.flash("errorMsg", "The email was already used before.");
-                return res.redirect("/signup");
-            }
-            bcrypt.hash(password, 12)
-                .then(hashedPassword => {
-                    const user = new User({
-                        email: email,
-                        password: hashedPassword,
-                        cart: { items: [] }
-                    });
-                    return user.save();
-                })
-                .then(result => {
-                    res.redirect("/login");
-                    return transporter.sendMail({
-                        to: email,
-                        from: 'fakemail@fake-domain.com',
-                        subject: "Signup succeeded",
-                        html: "<h1> You have successfully signed up!</h1>"
-                    })
-                        .catch(error => {
-                            if (error) {
-                                return console.log("Error: The email will be sent once sender identity is verified.\nThe server is still running...");
-                            }
-                        });
-                })
-                .catch(err => console.log(err));
+    // If user input invalid email
+    if (!errors.isEmpty()) {
+        console.log(errors.array());
+        // send http response status code 422 for Unprocessable Entity
+        return res.status(422).render("auth-views/signup", {
+           path: "/signup",
+           pageTitle: "Signup",
+           errorMsg: errors.array()[0].msg
+        });
+    }
+
+    // Checking if email already exists is performed by express-validator in the 'auth-routes.js'
+    bcrypt.hash(password, 12)
+        .then(hashedPassword => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+                cart: { items: [] }
+            });
+            return user.save();
         })
-        .catch(err => { console.log(err) });
+        .then(result => {
+            res.redirect("/login");
+            return transporter.sendMail({
+                to: email,
+                from: 'fakemail@fake-domain.com',
+                subject: "Signup succeeded",
+                html: "<h1> You have successfully signed up!</h1>"
+            })
+                .catch(error => {
+                    if (error) {
+                        return console.log("Error: The email will be sent once sender identity is verified.\nThe server is still running...");
+                    }
+                });
+        });
 }
 
 // Render password request form => GET '/password-reset-email'
