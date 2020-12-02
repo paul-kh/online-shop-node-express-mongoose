@@ -56,8 +56,10 @@ exports.postAddProduct = (req, res, next) => {
     .then((p) => {
       res.redirect("/admin/products");
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -74,7 +76,11 @@ exports.getProducts = (req, res, next) => {
         path: "/admin/products",
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Render product edit form => GET '/admin/edit-product
@@ -105,7 +111,11 @@ exports.getEditProduct = (req, res, next) => {
         validationErrors: [],
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Update the edited product in DB => POST '/admin/edit-product/'
@@ -154,7 +164,11 @@ exports.postEditProduct = (req, res, next) => {
       console.log("The product is updated successfully!");
       res.redirect("/admin/products");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Delete a product => POST '/admin/delete'
@@ -166,5 +180,9 @@ exports.postDeleteProduct = (req, res, next) => {
       console.log("The product was deleted successfully!");
       res.redirect("/admin/products");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

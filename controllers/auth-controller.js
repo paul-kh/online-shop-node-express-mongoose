@@ -106,11 +106,17 @@ exports.postLogin = (req, res, next) => {
             validationErrors: [],
           });
         })
-        .catch((bcryptCompareErr) => {
-          console.log(bcryptCompareErr);
+        .catch((err) => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
         });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Log the currently logged-in user out => POST '/loggout'
@@ -270,7 +276,9 @@ exports.postPasswordResetEmail = (req, res, next) => {
           });
       })
       .catch((err) => {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -303,7 +311,9 @@ exports.getPasswordReset = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -335,6 +345,8 @@ exports.postPasswordReset = (req, res, next) => {
       res.redirect("/login");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
