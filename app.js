@@ -1,9 +1,10 @@
 const Express = require("express");
 const path = require("path");
 const app = Express();
-const MONGODB_URI =
-  "mongodb+srv://paulchheang:4fgQAeU8jo9gYsjo@cluster0.wvahj.mongodb.net/online-shop-node-express-mongoose?retryWrites=true&w=majority";
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
+
+console.log("NODE ENV: ", process.env.NODE_ENV);
 
 // MIDDLEWARE FOR PARSING REQUEST'S BODY TO JSON FORMAT
 const bodyParser = require("body-parser");
@@ -79,6 +80,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// SET SECURE RESPONSE HEADERS WITH 'helmet'
+const helmet = require("helmet");
+app.use(helmet());
+
 // MIDDLEWARES HANDLING ROUTES
 const adminRoutes = require("./routes/admin-routes");
 const shopRoutes = require("./routes/shop-routes");
@@ -86,13 +91,14 @@ const authRoutes = require("./routes/auth-routes");
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+
 const errorController = require("./controllers/error-controller");
 // Route for 500 - server error
 app.get("/500", errorController.get500);
 // Route for 404 - page not found error
 app.use(errorController.get404);
 
-// CATCHING UNHANDLED ERRORS with app.use(err, req, res, next)
+// GLOBAL ERROR HANDLINGS with app.use(err, req, res, next)
 /*  The express middleware below can catch any error thrown by anywhere in the App.
     For the middleware to be able to catch the error, our codes need to be:
      - Synchronous code: throw new Error("dummy Error")
@@ -109,7 +115,7 @@ mongoose
   .connect(MONGODB_URI)
   .then((connectionResult) => {
     // Start Node server
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);

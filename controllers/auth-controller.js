@@ -44,7 +44,6 @@ exports.postLogin = (req, res, next) => {
   //   req.session.clientCookie = req.headers.cookie;
   //   ... more session variables...
   // ===================================================
-
   const email = req.body.email;
   const password = req.body.password;
   const validationErrors = validationResult(req);
@@ -67,7 +66,6 @@ exports.postLogin = (req, res, next) => {
       if (!foundUser) {
         // req.flash("errorMsg", "Incorrect email or password.");
         // return res.redirect("/login");
-
         return res.status(422).render("auth-views/login", {
           path: "/login",
           pageTitle: "Login",
