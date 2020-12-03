@@ -21,6 +21,7 @@ exports.getHomepage = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
+      products.map((p) => console.log(p.imageUrl));
       res.render("shop-views/product-list", {
         prods: products,
         pageTitle: "All Products",

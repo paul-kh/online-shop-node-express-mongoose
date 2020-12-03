@@ -83,8 +83,8 @@ app.use((req, res, next) => {
 });
 
 // SET SECURE RESPONSE HEADERS WITH 'helmet'
-const helmet = require("helmet");
-app.use(helmet());
+// const helmet = require("helmet");
+// app.use(helmet());
 
 // SET FILE COMPRESSION FOR ASSET FILES - 'compression'
 const compression = require("compression");
