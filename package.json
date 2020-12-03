@@ -1,11 +1,14 @@
 {
   "name": "online-shop-node-express-mongoose",
   "version": "1.0.0",
-  "description": "A typical online shop created by using Node.js, Express.js, Ejs, MySQL, Mongoose, and other packages.",
+  "description": "A typical online shop created by using Node.js, Express.js, Ejs, Mongoose, and other packages.",
   "main": "app.js",
+  "engines": {
+      "node": "14.15.1" 
+  },
   "scripts": {
     "test": "n/a",
-    "start": "nodemon app.js",
+    "start": "node app.js",
     "start-server": "node app.js"
   },
   "repository": {
