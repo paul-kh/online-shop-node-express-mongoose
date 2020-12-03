@@ -60,7 +60,9 @@ app.use((req, res, next) => {
       req.user = user;
       next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // FLASH [ERROR] MESSAGE TO USER
@@ -83,6 +85,10 @@ app.use((req, res, next) => {
 // SET SECURE RESPONSE HEADERS WITH 'helmet'
 const helmet = require("helmet");
 app.use(helmet());
+
+// SET FILE COMPRESSION FOR ASSET FILES - 'compression'
+const compression = require("compression");
+app.use(compression());
 
 // MIDDLEWARES HANDLING ROUTES
 const adminRoutes = require("./routes/admin-routes");
