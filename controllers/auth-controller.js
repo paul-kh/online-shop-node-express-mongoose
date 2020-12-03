@@ -47,7 +47,6 @@ exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const validationErrors = validationResult(req);
-  throw new Error("dummy");
 
   if (!validationErrors.isEmpty()) {
     return res.status(422).render("auth-views/login", {
