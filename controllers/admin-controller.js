@@ -41,8 +41,8 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   // Work with image upload
-  // console.log("image:", image);
-  // if (!image) {
+  console.log("image:", image);
+  if (!image) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Add Product",
       path: "/admin/add-product",
