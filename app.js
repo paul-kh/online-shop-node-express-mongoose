@@ -4,15 +4,40 @@ const app = Express();
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
 // Handle product image upload using 'multer'
-const uploadProductImage = require("./util/upload-product-image")(app);
+const multer = require("multer");
+// const uploadProductImage = require("./util/upload-product-image")(app);
 
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, "public")));
 app.use("/images", Express.static(path.join(__dirname, "images")));
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now());
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 // PARSING INCOMING REQUEST'S FORM BODY CONTENT TYPE = TEXT
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");
