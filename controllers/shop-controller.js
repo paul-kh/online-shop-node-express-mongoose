@@ -183,7 +183,6 @@ exports.getInvoice = (req, res, next) => {
       );
       pdfDoc.pipe(fs.createWriteStream(invoicePath));
       pdfDoc.pipe(res);
-
       pdfDoc.fontSize(26).text("Invoice", {
         underline: true,
       });
@@ -207,6 +206,8 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
 
       pdfDoc.end();
+      // Delete invoice file from the server
+      deleteFile(invoicePath);
     })
     .catch((err) => next(err));
 

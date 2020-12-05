@@ -2,6 +2,7 @@ module.exports = uploadProductImage = (app) => {
   // PARSING INCOMING REQUEST'S OF CONTENT TYPE = 'BINARY'
   // Note: The submit form must set enctype = "multipart/form data"
   const multer = require("multer");
+  const sharp = require("sharp");
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, "images");
