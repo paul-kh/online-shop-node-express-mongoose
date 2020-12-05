@@ -8,23 +8,7 @@ module.exports = uploadProductImage = (app) => {
     },
     filename: (req, file, cb) => {
       const date = new Date();
-      cb(
-        null,
-        date.getFullYear() +
-          "-" +
-          date.getMonth() +
-          "-" +
-          date.getDay() +
-          " " +
-          date.getHours() +
-          "H" +
-          date.getMinutes() +
-          "MM" +
-          date.getSeconds() +
-          "SS" +
-          "-" +
-          file.originalname
-      );
+      cb(null, Date.now() + "-" + file.originalname);
     },
   });
 
