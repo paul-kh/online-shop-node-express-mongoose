@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const user = require("../models/user");
 const { validationResult } = require("express-validator");
+const deleteFile = require("../util/delete-file");
 
 // GET '/admin/add-product
 exports.getAddProduct = (req, res, next) => {
@@ -16,12 +17,13 @@ exports.getAddProduct = (req, res, next) => {
 
 // POST '/admin/add-product
 exports.postAddProduct = (req, res, next) => {
+  const image = req.file;
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const validationErrors = validationResult(req);
 
+  // Check validation results of the incoming request handled by 'express-validator'
+  const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Add Product",
@@ -30,7 +32,6 @@ exports.postAddProduct = (req, res, next) => {
       hasError: true,
       product: {
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description,
       },
@@ -38,10 +39,27 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: validationErrors.array(),
     });
   }
-  // INSERT NEW DOCUMENT/ROW INTO THE COLLECTION/TABLE
-  // * Instantiate product object from the 'Product' model to be a new document/row
-  //   and assign values to each field/column/attribute/property/key
-  // * Save to DB
+
+  // Work with image upload
+  console.log("image:", image);
+  if (!image) {
+    return res.status(422).render("admin-views/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description,
+      },
+      errorMessage: "Attached file is not an image.",
+      validationErrors: [],
+    });
+  }
+  const imageUrl = image.path;
+
+  // Add product to DB
   const product = new Product({
     title: title,
     price: price,
@@ -125,10 +143,10 @@ exports.postEditProduct = (req, res, next) => {
   const newTitle = req.body.title;
   const newDescription = req.body.description;
   const newPrice = req.body.price;
-  const newImageUrl = req.body.imageUrl;
+  const image = req.file;
 
+  // Check validation results of user input
   const validationErrors = validationResult(req);
-
   if (!validationErrors.isEmpty()) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Edit Product",
@@ -137,7 +155,6 @@ exports.postEditProduct = (req, res, next) => {
       hasError: true,
       product: {
         title: newTitle,
-        imageUrl: newImageUrl,
         price: newPrice,
         description: newDescription,
         _id: productId,
@@ -157,7 +174,10 @@ exports.postEditProduct = (req, res, next) => {
       product.title = newTitle;
       product.price = newPrice;
       product.description = newDescription;
-      product.imageUrl = newImageUrl;
+      if (image) {
+        deleteFile(product.imageUrl);
+        product.imageUrl = image.path;
+      }
       return product.save(); // save to DB
     })
     .then((result) => {
@@ -175,10 +195,16 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   // Get product ID from the hidden input form control in the view 'products.ejs'
   const productId = req.body.productId;
-  Product.deleteOne({ _id: productId, userId: req.user._id })
-    .then(() => {
-      console.log("The product was deleted successfully!");
-      res.redirect("/admin/products");
+  Product.findById(productId)
+    .then((product) => {
+      if (!product) return next(new Error("Product not found."));
+      return Product.deleteOne({ _id: productId, userId: req.user._id })
+        .then(() => {
+          // Delete product's image file
+          deleteFile(product.imageUrl);
+          res.redirect("/admin/products");
+        })
+        .catch((err) => next(err));
     })
     .catch((err) => {
       const error = new Error(err);

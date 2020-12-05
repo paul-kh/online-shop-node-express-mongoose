@@ -1,4 +1,5 @@
 const Express = require("express");
+const { check } = require("express-validator");
 const router = Express.Router();
 const shopController = require("../controllers/shop-controller");
 const checkAuth = require("../middleware/check-auth");
@@ -30,5 +31,7 @@ router.post("/create-order", checkAuth, shopController.postOrder);
 
 // // Render orders => GET '/orders'
 router.get("/orders", checkAuth, shopController.getOrders);
+
+router.get("/orders/:orderId", checkAuth, shopController.getInvoice);
 
 module.exports = router;

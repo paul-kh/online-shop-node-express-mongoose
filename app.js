@@ -3,19 +3,20 @@ const path = require("path");
 const app = Express();
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
+// Handle product image upload using 'multer'
+const uploadProductImage = require("./util/upload-product-image")(app);
 
-console.log("NODE ENV: ", process.env.NODE_ENV);
+// Middleware for sending static files
+app.use(Express.static(path.join(__dirname, "public")));
+app.use("/images", Express.static(path.join(__dirname, "images")));
 
-// MIDDLEWARE FOR PARSING REQUEST'S BODY TO JSON FORMAT
+// PARSING INCOMING REQUEST'S FORM BODY CONTENT TYPE = TEXT
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");
 app.set("views", "views");
-
-// Middleware for sending static files
-app.use(Express.static(path.join(__dirname, "public")));
 
 // SETUP & MANAGE SESSIONS
 /* Notes: - The 'express-session' creates a session object with randomly hashed key sent as a session cookie

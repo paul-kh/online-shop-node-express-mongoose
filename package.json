@@ -4,11 +4,11 @@
   "description": "A typical online shop created by using Node.js, Express.js, Ejs, Mongoose, and other packages.",
   "main": "app.js",
   "engines": {
-      "node": "14.15.1" 
+    "node": "14.15.1"
   },
   "scripts": {
     "test": "n/a",
-    "start": "node app.js",
+    "start": "nodemon app.js",
     "start-server": "node app.js"
   },
   "repository": {
@@ -39,8 +39,10 @@
     "helmet": "^4.2.0",
     "mongodb": "^3.6.3",
     "mongoose": "^5.10.15",
+    "multer": "^1.4.2",
     "nodemailer": "^6.4.16",
-    "nodemailer-sendgrid-transport": "^0.2.0"
+    "nodemailer-sendgrid-transport": "^0.2.0",
+    "pdfkit": "^0.11.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
