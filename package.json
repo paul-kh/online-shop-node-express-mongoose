@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "n/a",
-    "start": "nodemon app.js",
+    "start": "node app.js",
     "start-server": "node app.js"
   },
   "repository": {
