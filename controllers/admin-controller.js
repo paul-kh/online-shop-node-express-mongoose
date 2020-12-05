@@ -2,7 +2,6 @@ const Product = require("../models/product");
 const user = require("../models/user");
 const { validationResult } = require("express-validator");
 const deleteFile = require("../util/delete-file");
-const sharp = require("sharp");
 
 // GET '/admin/add-product
 exports.getAddProduct = (req, res, next) => {
