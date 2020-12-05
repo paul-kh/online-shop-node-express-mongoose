@@ -207,7 +207,7 @@ exports.getInvoice = (req, res, next) => {
 
       pdfDoc.end();
       // Delete invoice file from the server
-      // deleteFile(invoicePath);
+      deleteFile(invoicePath);
     })
     .catch((err) => next(err));
 

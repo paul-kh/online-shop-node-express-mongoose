@@ -3,7 +3,3 @@ package-lock.json
 nodemon.json
 -server.key
 server.cert
-*.pdf
-*.jpg
-*.jpeg
-*.png
