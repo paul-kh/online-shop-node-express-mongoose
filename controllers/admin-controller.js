@@ -12,6 +12,7 @@ exports.getAddProduct = (req, res, next) => {
     hasError: false,
     errorMsg: null,
     validationErrors: [],
+    user: req.user.email,
   });
 };
 
@@ -38,6 +39,7 @@ exports.postAddProduct = (req, res, next) => {
       },
       errorMsg: validationErrors.array()[0].msg,
       validationErrors: validationErrors.array(),
+      user: req.user.email,
     });
   }
 
@@ -55,7 +57,8 @@ exports.postAddProduct = (req, res, next) => {
         description: description,
       },
       errorMessage: "Attached file is not an image.",
-      validationErrors: [{ msg: "Attached file is not an image." }],
+      validationErrors: [],
+      user: req.user.email,
     });
   }
   // if (image.size > 52427) {
@@ -108,6 +111,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -143,6 +147,7 @@ exports.getEditProduct = (req, res, next) => {
         hasError: false,
         errorMsg: null,
         validationErrors: [],
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -177,6 +182,7 @@ exports.postEditProduct = (req, res, next) => {
       },
       errorMsg: validationErrors.array()[0].msg,
       validationErrors: validationErrors.array(),
+      user: req.user.email,
     });
   }
 

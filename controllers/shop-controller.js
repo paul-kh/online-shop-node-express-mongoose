@@ -15,6 +15,7 @@ exports.getHomepage = (req, res, next) => {
         prods: products,
         pageTitle: "All Products",
         path: "/",
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -33,6 +34,7 @@ exports.getProducts = (req, res, next) => {
         pageTitle: "All Products",
         path: "/products",
         prods: products,
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -51,6 +53,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -73,6 +76,7 @@ exports.getCart = (req, res, next) => {
         path: "/cart",
         pageTitle: "Your Cart",
         products: products,
+        user: req.user.email,
       });
     })
     .catch((err) => {
@@ -154,6 +158,7 @@ exports.getOrders = (req, res, next) => {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
+        user: req.user.email,
       });
     })
     .catch((err) => {
