@@ -25,7 +25,7 @@ exports.postAddProduct = (req, res, next) => {
 
   // Check validation results of the incoming request handled by 'express-validator'
   const validationErrors = validationResult(req);
-  console.log(validationErrors.array());
+  // console.log(validationErrors.array());
   if (!validationErrors.isEmpty()) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Add Product",
@@ -102,7 +102,6 @@ exports.postAddProduct = (req, res, next) => {
 
 // Show admin's product list => GET '/admin/products
 exports.getProducts = (req, res, next) => {
-  // Product.findAll()
   // To get only products that are associated with the current user,
   // we use the magic method 'User.getProducts()' created by 'Sequelize Association'
   Product.find({ userId: req.user._id })

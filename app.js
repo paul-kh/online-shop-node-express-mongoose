@@ -3,8 +3,6 @@ const path = require("path");
 const app = Express();
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
-// Handle product image upload using 'multer'
-const uploadProductImage = require("./util/upload-product-image")(app, "image");
 
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, "public")));
@@ -13,6 +11,9 @@ app.use("/images", Express.static(path.join(__dirname, "images")));
 // PARSING INCOMING REQUEST'S FORM BODY CONTENT TYPE = TEXT
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Handle product image upload using 'multer'
+const uploadProductImage = require("./util/upload-product-image")(app, "image");
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");
@@ -100,7 +101,7 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 const errorController = require("./controllers/error-controller");
-// Route for 500 - server error
+// // Route for 500 - server error
 app.get("/500", errorController.get500);
 // Route for 404 - page not found error
 app.use(errorController.get404);
@@ -113,7 +114,7 @@ app.use(errorController.get404);
         Note: In asyn. code, 'throw new Error(err)' will not be caught by the express middle 'app.use(err, req, res, next)' */
 app.use((error, req, res, next) => {
   // res.status(error.httpStatusCode).render(...);
-  res.redirect("/500");
+  res.status(500).redirect("/500");
 });
 
 // SETUP DATABASE CONNECTION AND START NODE SERVER
