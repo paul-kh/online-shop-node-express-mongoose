@@ -24,6 +24,7 @@ exports.postAddProduct = (req, res, next) => {
 
   // Check validation results of the incoming request handled by 'express-validator'
   const validationErrors = validationResult(req);
+  console.log(validationErrors.array());
   if (!validationErrors.isEmpty()) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Add Product",
@@ -54,9 +55,24 @@ exports.postAddProduct = (req, res, next) => {
         description: description,
       },
       errorMessage: "Attached file is not an image.",
-      validationErrors: [],
+      validationErrors: [{ msg: "Attached file is not an image." }],
     });
   }
+  // if (image.size > 52427) {
+  //   return res.status(422).render("admin-views/edit-product", {
+  //     pageTitle: "Add Product",
+  //     path: "/admin/add-product",
+  //     editing: false,
+  //     hasError: true,
+  //     product: {
+  //       title: title,
+  //       price: price,
+  //       description: description,
+  //     },
+  //     errorMessage: "Attached file is bigger than 600KB.",
+  //     validationErrors: [],
+  //   });
+  // }
   const imageUrl = image.path;
 
   // Add product to DB

@@ -1,4 +1,4 @@
-module.exports = uploadProductImage = (app) => {
+module.exports = uploadProductImage = (app, fileInput) => {
   // PARSING INCOMING REQUEST'S OF CONTENT TYPE = 'BINARY'
   // Note: The submit form must set enctype = "multipart/form data"
   const multer = require("multer");
@@ -26,7 +26,12 @@ module.exports = uploadProductImage = (app) => {
   };
 
   // Multer Upload settings
-  const upload = multer({ storage: storage, fileFilter: fileFilter }); // const upload = multer ({dest: "images"});
+  // const upload = multer ({dest: "images"});
+  const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 524288 }, // limit max 500KB
+  });
   // Middleware to handle single file upload
-  return app.use(upload.single("image"));
+  return app.use(upload.single(fileInput));
 };

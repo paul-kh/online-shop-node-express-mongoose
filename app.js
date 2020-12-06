@@ -4,7 +4,7 @@ const app = Express();
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
 // Handle product image upload using 'multer'
-const uploadProductImage = require("./util/upload-product-image")(app);
+const uploadProductImage = require("./util/upload-product-image")(app, "image");
 
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, "public")));
