@@ -4,7 +4,7 @@ module.exports = uploadProductImage = (app, fileInput) => {
   const multer = require("multer");
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, "images");
+      cb(null, "images/");
     },
     filename: (req, file, cb) => {
       const date = new Date();
