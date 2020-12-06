@@ -7,53 +7,85 @@ const Order = require("../models/order");
 const order = require("../models/order");
 const deleteFile = require("../util/delete-file");
 
-// Homepage (index.ejs) => GET '/'
-exports.getHomepage = (req, res, next) => {
+const ITEMS_PER_PAGE = 1;
+
+const showProducts = (
+  req,
+  res,
+  next,
+  renderView,
+  viewPath,
+  pageTitle,
+  ITEMS_PER_PAGE
+) => {
+  const page = +req.query.page || 1;
+  let totalItems;
+  // Include pagination logics
   Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
-      res.render("shop-views/product-list", {
+      res.render(renderView, {
         prods: products,
-        pageTitle: "All Products",
-        path: "/",
-        user: req.user.email,
+        pageTitle: pageTitle,
+        path: viewPath,
+        user: req.user ? req.user.email : "",
+        currentPage: page,
+        totalProducts: totalItems,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
-};
-// Product list => GET '/products'
-exports.getProducts = (req, res, next) => {
-  Product.find()
-    .then((products) => {
-      products.map((p) => console.log(p.imageUrl));
-      res.render("shop-views/product-list", {
-        prods: products,
-        pageTitle: "All Products",
-        path: "/products",
-        prods: products,
-        user: req.user.email,
-      });
-    })
-    .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
     });
 };
 
+// Homepage (index.ejs) => GET '/'
+exports.getHomepage = (req, res, next) => {
+  showProducts(
+    req,
+    res,
+    next,
+    "shop-views/product-list",
+    "/",
+    "Home Page",
+    ITEMS_PER_PAGE
+  );
+};
+// Product list => GET '/products'
+exports.getProducts = (req, res, next) => {
+  showProducts(
+    req,
+    res,
+    next,
+    "shop-views/product-list",
+    "/products",
+    "Shop Products",
+    ITEMS_PER_PAGE
+  );
+};
+
 // Product Details  => GET '/product/:productId'
 exports.getProduct = (req, res, next) => {
   Product.findById(req.params.productId)
     .then((product) => {
-      console.log(product.title);
       res.render("shop-views/product-detail", {
         product: product,
         pageTitle: product.title,
         path: "/products",
-        user: req.user.email,
+        user: req.user ? req.user.email : "",
       });
     })
     .catch((err) => {
@@ -76,7 +108,7 @@ exports.getCart = (req, res, next) => {
         path: "/cart",
         pageTitle: "Your Cart",
         products: products,
-        user: req.user.email,
+        user: req.user ? req.user.email : "",
       });
     })
     .catch((err) => {
@@ -158,7 +190,7 @@ exports.getOrders = (req, res, next) => {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
-        user: req.user.email,
+        user: req.user ? req.user.email : "",
       });
     })
     .catch((err) => {

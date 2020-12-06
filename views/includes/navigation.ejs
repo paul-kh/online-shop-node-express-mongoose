@@ -54,7 +54,7 @@
           <!-- name must be "_csrf" because csurf is looking for this value for handling token -->
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button type="submit">
-            Logout (<span style="color: #ffeb3b"><%= user %></span>)
+            Logout - <span style="font-style: italic"><%= user %></span>
           </button>
         </form>
       </li>
@@ -113,7 +113,7 @@
         <!-- name must be "_csrf" because csurf is looking for this value for handling token -->
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit">
-          Logout (<span style="color: #ffeb3b">(<%= user %></span>)
+          Logout - <span style="font-style: italic">(<%= user %></span>
         </button>
       </form>
     </li>
