@@ -8,7 +8,7 @@ module.exports = uploadProductImage = (app, fileInput) => {
     },
     filename: (req, file, cb) => {
       const date = new Date();
-      cb(null, Date.now() + "-" + file.originalname);
+      cb(null, file.fieldname + "-" + Date.now());
     },
   });
 
