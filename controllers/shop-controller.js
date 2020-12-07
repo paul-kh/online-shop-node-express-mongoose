@@ -7,74 +7,26 @@ const Order = require("../models/order");
 const order = require("../models/order");
 const deleteFile = require("../util/delete-file");
 
+// Number of products to show per page - Pagination
 const ITEMS_PER_PAGE = 1;
-
-const showProducts = (
-  req,
-  res,
-  next,
-  renderView,
-  viewPath,
-  pageTitle,
-  ITEMS_PER_PAGE
-) => {
-  const page = +req.query.page || 1;
-  let totalItems;
-  // Include pagination logics
-  Product.find()
-    .countDocuments()
-    .then((numProducts) => {
-      totalItems = numProducts;
-      return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
-    })
-    .then((products) => {
-      res.render(renderView, {
-        prods: products,
-        pageTitle: pageTitle,
-        path: viewPath,
-        user: req.user ? req.user.email : "",
-        currentPage: page,
-        totalProducts: totalItems,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
-};
 
 // Homepage (index.ejs) => GET '/'
 exports.getHomepage = (req, res, next) => {
-  showProducts(
-    req,
-    res,
-    next,
-    "shop-views/product-list",
-    "/",
-    "Home Page",
-    ITEMS_PER_PAGE
-  );
+  showProducts(req, res, next, {
+    renderView: "shop-views/product-list",
+    viewPath: "/",
+    pageTitle: "Home Page",
+    ITEMS_PER_PAGE: ITEMS_PER_PAGE,
+  });
 };
 // Product list => GET '/products'
 exports.getProducts = (req, res, next) => {
-  showProducts(
-    req,
-    res,
-    next,
-    "shop-views/product-list",
-    "/products",
-    "Shop Products",
-    ITEMS_PER_PAGE
-  );
+  showProducts(req, res, next, {
+    renderView: "shop-views/product-list",
+    viewPath: "/products",
+    pageTitle: "Shop Products",
+    ITEMS_PER_PAGE: ITEMS_PER_PAGE,
+  });
 };
 
 // Product Details  => GET '/product/:productId'
@@ -263,4 +215,50 @@ exports.getInvoice = (req, res, next) => {
     })
     .catch((err) => next(err));
     */
+};
+
+// Function rendering product list
+const showProducts = (
+  req,
+  res,
+  next,
+  {
+    renderView: viewName,
+    viewPath: path,
+    pageTitle: title,
+    ITEMS_PER_PAGE: ITEMS_PER_PAGE,
+  }
+) => {
+  const page = +req.query.page || 1;
+  let totalItems;
+  // Include pagination logics
+  Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
+    .then((products) => {
+      res.render(viewName, {
+        prods: products,
+        pageTitle: title,
+        path: path,
+        user: req.user ? req.user.email : "",
+        currentPage: page,
+        totalProducts: totalItems,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

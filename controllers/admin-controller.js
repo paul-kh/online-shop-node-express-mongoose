@@ -213,9 +213,9 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 // Delete a product => POST '/admin/delete'
-exports.postDeleteProduct = (req, res, next) => {
+exports.deleteProduct = (req, res, next) => {
   // Get product ID from the hidden input form control in the view 'products.ejs'
-  const productId = req.body.productId;
+  const productId = req.params.productId;
   Product.findById(productId)
     .then((product) => {
       if (!product) return next(new Error("Product not found."));
