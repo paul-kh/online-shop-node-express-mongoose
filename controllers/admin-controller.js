@@ -214,22 +214,39 @@ exports.postEditProduct = (req, res, next) => {
 
 // Delete a product => POST '/admin/delete'
 exports.deleteProduct = (req, res, next) => {
-  // Get product ID from the hidden input form control in the view 'products.ejs'
-  const productId = req.params.productId;
-  Product.findById(productId)
+  const prodId = req.params.productId;
+  Product.findById(prodId)
     .then((product) => {
-      if (!product) return next(new Error("Product not found."));
-      return Product.deleteOne({ _id: productId, userId: req.user._id })
-        .then(() => {
-          // Delete product's image file
-          deleteFile(product.imageUrl);
-          res.redirect("/admin/products");
-        })
-        .catch((err) => next(err));
+      if (!product) {
+        return next(new Error("Product not found."));
+      }
+      deleteFile(product.imageUrl);
+      return Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
+    .then(() => {
+      console.log("DESTROYED PRODUCT");
+      res.status(200).json({ message: "Success!" });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      res.status(500).json({ message: "Deleting product failed." });
     });
+
+  // // Get product ID from the hidden input form control in the view 'products.ejs'
+  // const productId = req.params.productId;
+  // Product.findById(productId)
+  //   .then((product) => {
+  //     if (!product) return next(new Error("Product not found."));
+  //     return Product.deleteOne({ _id: productId, userId: req.user._id })
+  //       .then(() => {
+  //         // Delete product's image file
+  //         deleteFile(product.imageUrl);
+  //         res.redirect("/admin/products");
+  //       })
+  //       .catch((err) => next(err));
+  //   })
+  //   .catch((err) => {
+  //     const error = new Error(err);
+  //     error.httpStatusCode = 500;
+  //     return next(error);
+  //   });
 };
