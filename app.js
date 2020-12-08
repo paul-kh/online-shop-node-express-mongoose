@@ -1,6 +1,7 @@
 const Express = require("express");
 const path = require("path");
 const app = Express();
+const PORT = process.env.PORT || 3000;
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 const User = require("./models/user");
 
@@ -122,7 +123,7 @@ const mongoose = require("mongoose");
 mongoose
   .connect(MONGODB_URI)
   .then((connectionResult) => {
-    app.listen(process.env.PORT || 3000);
+    app.listen(PORT);
   })
   .catch((err) => {
     console.log(err);
