@@ -113,7 +113,7 @@ app.use(errorController.get404);
      - Asyn. code: .catch(err => { next(new Error(err))}); 
         Note: In asyn. code, 'throw new Error(err)' will not be caught by the express middle 'app.use(err, req, res, next)' */
 app.use((error, req, res, next) => {
-  // res.status(error.httpStatusCode).render(...);
+  console.log(error);
   res.status(500).redirect("/500");
 });
 
@@ -122,7 +122,6 @@ const mongoose = require("mongoose");
 mongoose
   .connect(MONGODB_URI)
   .then((connectionResult) => {
-    // Start Node server
     app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
