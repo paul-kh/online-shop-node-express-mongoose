@@ -90,8 +90,8 @@ app.use((req, res, next) => {
 // app.use(helmet());
 
 // SET FILE COMPRESSION FOR ASSET FILES - 'compression'
-const compression = require("compression");
-app.use(compression());
+// const compression = require("compression");
+// app.use(compression());
 
 // MIDDLEWARES HANDLING ROUTES
 const adminRoutes = require("./routes/admin-routes");
