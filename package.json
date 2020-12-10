@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/paul-kh/online-shop-node-express-sequelize#readme",
   "dependencies": {
+    "aws-sdk": "^2.807.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "connect-flash": "^0.1.1",

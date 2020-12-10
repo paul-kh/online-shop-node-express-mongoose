@@ -2,15 +2,27 @@ module.exports = uploadProductImage = (app, fileInput) => {
   // PARSING INCOMING REQUEST'S OF CONTENT TYPE = 'BINARY'
   // Note: The submit form must set enctype = "multipart/form data"
   const multer = require("multer");
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "images/");
-    },
-    filename: (req, file, cb) => {
-      const date = new Date();
-      cb(null, Date.now() + "-" + file.originalname);
-    },
+  const AWS = require("aws-sdk");
+
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
+
+  const storage = multer.memoryStorage({
+    destination: (req, file, cb) => {
+      cb(null, "");
+    },
+    // filename: (req, file, cb) => {
+    //   const date = new Date();
+    //   cb(null, Date.now() + "-" + file.originalname);
+    // },
+  });
+  // const storage = multer.memoryStorage({
+  //   destination: function(req, file, callback) {
+  //       callback(null, '')
+  //   }
+  // })
 
   // Filter file type
   const fileFilter = (req, file, cb) => {
@@ -32,6 +44,27 @@ module.exports = uploadProductImage = (app, fileInput) => {
     fileFilter: fileFilter,
     limits: { fileSize: 524288 }, // limit max 500KB
   });
-  // Middleware to handle single file upload
-  return app.use(upload.single(fileInput));
+
+  app.use(upload.single(fileInput), (req, res, next) => {
+    let myFile = req.file.originalname.split(".");
+    const fileType = myFile[myFile.length - 1];
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      // Key: `${uuid()}.${fileType}`,
+      Key: Date.now() + "-" + file.originalname,
+      Body: req.file.buffer,
+    };
+
+    s3.upload(params, (error, data) => {
+      if (error) {
+        // return res.status(500).send(error);
+        return console.log(error);
+      }
+      console.log(data);
+      // res.status(200).send(data);
+    });
+  });
+  // // Middleware to handle single file upload
+  // return app.use(upload.single(fileInput));
 };

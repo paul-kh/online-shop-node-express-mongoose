@@ -16,8 +16,71 @@ app.use("/images", Express.static(path.join(__dirname, "images")));
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
+//===========================================================
+
 // Handle product image upload using 'multer'
-const uploadProductImage = require("./util/upload-product-image")(app, "image");
+// const uploadProductImage = require("./util/upload-product-image")(app, "image");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "");
+  },
+  // filename: (req, file, cb) => {
+  //   const date = new Date();
+  //   cb(null, Date.now() + "-" + file.originalname);
+  // },
+});
+
+// Filter file type
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// Multer Upload settings
+// const upload = multer ({dest: "images"});
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 524288 }, // limit max 500KB
+}).single("image");
+
+// app.use(upload.single("image"), (req, res, next) => {
+// const image = req.file;
+// if (!image) return next();
+// let myFile = req.file.originalname.split(".");
+// // const fileType = myFile[myFile.length - 1];
+
+// const params = {
+//   Bucket: process.env.AWS_BUCKET_NAME,
+//   // Key: `${uuid()}.${fileType}`,
+//   Key: Date.now() + "-" + req.file.originalname,
+//   Body: req.file.buffer,
+// };
+
+// s3.upload(params, (error, data) => {
+//   if (error) {
+//     // return res.status(500).send(error);
+//     return console.log(error);
+//   }
+//   console.log(data.Location);
+//   req.imageURL = data.Location;
+//   next();
+//   // res.status(200).send(data);
+// });
+// });
+
+// =================================
+
+app.use(upload);
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");

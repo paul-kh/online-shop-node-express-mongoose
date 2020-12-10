@@ -18,10 +18,18 @@ exports.getAddProduct = (req, res, next) => {
 
 // POST '/admin/add-product
 exports.postAddProduct = (req, res, next) => {
+  const AWS = require("aws-sdk");
+
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
+
   const image = req.file;
   const title = req.body.title;
   const price = req.body.price;
   const description = req.body.description;
+  console.log("Image:", image);
 
   // Check validation results of the incoming request handled by 'express-validator'
   const validationErrors = validationResult(req);
@@ -44,7 +52,6 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   // Work with image upload
-  console.log("image:", image);
   if (!image) {
     return res.status(422).render("admin-views/edit-product", {
       pageTitle: "Add Product",
@@ -56,48 +63,73 @@ exports.postAddProduct = (req, res, next) => {
         price: price,
         description: description,
       },
-      errorMessage: "Attached file is not an image.",
+      errorMsg: "Attached file is not an image.",
       validationErrors: [],
       user: req.user.email,
     });
   }
-  // if (image.size > 52427) {
-  //   return res.status(422).render("admin-views/edit-product", {
-  //     pageTitle: "Add Product",
-  //     path: "/admin/add-product",
-  //     editing: false,
-  //     hasError: true,
-  //     product: {
-  //       title: title,
-  //       price: price,
-  //       description: description,
-  //     },
-  //     errorMessage: "Attached file is bigger than 600KB.",
-  //     validationErrors: [],
-  //   });
-  // }
-  const imageUrl = image.path;
+  if (image.size > 614399) {
+    console.log("image size is too big");
+    return res.status(422).render("admin-views/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description,
+      },
+      errorMsg: "Attached file is bigger than 600KB.",
+      validationErrors: [],
+      user: req.user.email,
+    });
+  }
+  // const imageUrl = image.path;
 
-  // Add product to DB
-  const product = new Product({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-    userId: req.user, // Mongoose will map 'req.user' = 'req.user_id'
+  // ============================
+  // let myFile = req.file.originalname.split(".");
+  // const fileType = myFile[myFile.length - 1];
+
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    // Key: `${uuid()}.${fileType}`,
+    Key: Date.now() + "-" + req.file.originalname,
+    Body: req.file.path,
+  };
+
+  s3.upload(params, (error, data) => {
+    if (error) {
+      // return res.status(500).send(error);
+      return console.log(error);
+    }
+    // Delete local file
+    deleteFile(req.file.path);
+    const imageUrl = data.Location;
+    console.log("image URL:", imageUrl);
+    // Add product to DB
+    const product = new Product({
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+      userId: req.user, // Mongoose will map 'req.user' = 'req.user_id'
+    });
+
+    // Save newly created document
+    product
+      .save()
+      .then((p) => {
+        res.redirect("/admin/products");
+      })
+      .catch((err) => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   });
 
-  // Save newly created document
-  product
-    .save()
-    .then((p) => {
-      res.redirect("/admin/products");
-    })
-    .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
+  //===================
 };
 
 // Show admin's product list => GET '/admin/products
