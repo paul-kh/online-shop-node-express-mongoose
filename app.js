@@ -1,8 +1,11 @@
 const Express = require("express");
 const path = require("path");
 const app = Express();
+// const dotenv = require("dotenv");
+// dotenv.config();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
+
 const User = require("./models/user");
 
 // Middleware for sending static files
@@ -23,7 +26,7 @@ app.set("views", "views");
 // SETUP & MANAGE SESSIONS
 /* Notes: - The 'express-session' creates a session object with randomly hashed key sent as a session cookie
             to be stored at the client's browser. It's hard for the client/user to guess what the real value of the hashed/secret key is.
-          - By default, the 'express-session' create and store the 'session' object in the server's memory. 
+          - By default, the 'express-session' create and store the 'session' object in the server's memory.
           - The 'connect-mongdb-session' adds to MongoDB the 'session' object created by the 'express-session */
 const session = require("express-session");
 const storeSessionsInMongoDB = require("connect-mongodb-session")(session);
@@ -111,7 +114,7 @@ app.use(errorController.get404);
 /*  The express middleware below can catch any error thrown by anywhere in the App.
     For the middleware to be able to catch the error, our codes need to be:
      - Synchronous code: throw new Error("dummy Error")
-     - Asyn. code: .catch(err => { next(new Error(err))}); 
+     - Asyn. code: .catch(err => { next(new Error(err))});
         Note: In asyn. code, 'throw new Error(err)' will not be caught by the express middle 'app.use(err, req, res, next)' */
 app.use((error, req, res, next) => {
   console.log(error);
