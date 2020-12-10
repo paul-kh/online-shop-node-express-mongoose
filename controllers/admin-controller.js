@@ -95,7 +95,8 @@ exports.postAddProduct = (req, res, next) => {
     Bucket: process.env.AWS_BUCKET_NAME,
     // Key: `${uuid()}.${fileType}`,
     Key: Date.now() + "-" + req.file.originalname,
-    Body: req.file.buffer,
+    Body: req.file.path,
+    // Body: req.file.buffer, // memoryStorage
   };
 
   s3.upload(params, (error, data) => {
@@ -104,7 +105,7 @@ exports.postAddProduct = (req, res, next) => {
       return console.log(error);
     }
     // Delete local file
-    // deleteFile(product.imageUrl);
+    deleteFile(req.file.path);
     const imageUrl = data.Location;
     console.log("image URL:", imageUrl);
     // Add product to DB

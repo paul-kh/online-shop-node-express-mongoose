@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // const uploadProductImage = require("./util/upload-product-image")(app, "image");
 const multer = require("multer");
 
-const storage = multer.memoryStorage({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "");
   },
@@ -50,7 +50,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 524288 }, // limit max 500KB
+  limits: { fileSize: 614400 }, // limit max 600KB * 1024
 }).single("image");
 
 // app.use(upload.single("image"), (req, res, next) => {
