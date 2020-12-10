@@ -9,7 +9,7 @@ const order = require("../models/order");
 const deleteFile = require("../util/delete-file");
 
 // Number of products to show per page - Pagination
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 3;
 
 // Homepage (index.ejs) => GET '/'
 exports.getHomepage = (req, res, next) => {
