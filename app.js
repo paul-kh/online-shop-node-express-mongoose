@@ -50,37 +50,12 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 614400 }, // limit max 600KB * 1024
+  limits: { fileSize: 6143400 }, // limit max 600KB * 1024
 }).single("image");
 
-// app.use(upload.single("image"), (req, res, next) => {
-// const image = req.file;
-// if (!image) return next();
-// let myFile = req.file.originalname.split(".");
-// // const fileType = myFile[myFile.length - 1];
-
-// const params = {
-//   Bucket: process.env.AWS_BUCKET_NAME,
-//   // Key: `${uuid()}.${fileType}`,
-//   Key: Date.now() + "-" + req.file.originalname,
-//   Body: req.file.buffer,
-// };
-
-// s3.upload(params, (error, data) => {
-//   if (error) {
-//     // return res.status(500).send(error);
-//     return console.log(error);
-//   }
-//   console.log(data.Location);
-//   req.imageURL = data.Location;
-//   next();
-//   // res.status(200).send(data);
-// });
-// });
+app.use(upload);
 
 // =================================
-
-app.use(upload);
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");

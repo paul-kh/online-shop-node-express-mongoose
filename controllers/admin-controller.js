@@ -253,7 +253,7 @@ exports.deleteProduct = (req, res, next) => {
       if (!product) {
         return next(new Error("Product not found."));
       }
-      deleteFile(product.imageUrl);
+      // deleteFile(product.imageUrl);
       return Product.deleteOne({ _id: prodId, userId: req.user._id });
     })
     .then(() => {
