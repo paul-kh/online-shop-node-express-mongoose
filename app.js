@@ -1,39 +1,28 @@
 const Express = require("express");
 const path = require("path");
+const User = require("./models/user");
+
 const app = Express();
-// const dotenv = require("dotenv");
-// dotenv.config();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.wvahj.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
-
-const User = require("./models/user");
 
 // Middleware for sending static files
 app.use(Express.static(path.join(__dirname, "public")));
 app.use("/images", Express.static(path.join(__dirname, "images")));
 
-// PARSING INCOMING REQUEST'S FORM BODY CONTENT TYPE = TEXT
+// Parsing incoming request's form body
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//===========================================================
-
-// Handle product image upload using 'multer'
-// const uploadProductImage = require("./util/upload-product-image")(app, "image");
+// Handling product image upload to AWS S3 bucket via multer
 const multer = require("multer");
-
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage({
   destination: (req, file, cb) => {
     cb(null, "");
   },
-  // filename: (req, file, cb) => {
-  //   const date = new Date();
-  //   cb(null, Date.now() + "-" + file.originalname);
-  // },
 });
-
-// Filter file type
 const fileFilter = (req, file, cb) => {
+  // Filter file type
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
@@ -44,18 +33,13 @@ const fileFilter = (req, file, cb) => {
     cb(null, false);
   }
 };
-
-// Multer Upload settings
-// const upload = multer ({dest: "images"});
 const upload = multer({
+  // Multer Upload settings
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 6143400 }, // limit max 600KB * 1024
 }).single("image");
-
 app.use(upload);
-
-// =================================
 
 // Setup view engine 'ejs'
 app.set("view engine", "ejs");
@@ -126,14 +110,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// SET SECURE RESPONSE HEADERS WITH 'helmet'
-// const helmet = require("helmet");
-// app.use(helmet());
-
-// SET FILE COMPRESSION FOR ASSET FILES - 'compression'
-// const compression = require("compression");
-// app.use(compression());
-
 // MIDDLEWARES HANDLING ROUTES
 const adminRoutes = require("./routes/admin-routes");
 const shopRoutes = require("./routes/shop-routes");
@@ -143,9 +119,8 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 const errorController = require("./controllers/error-controller");
-// // Route for 500 - server error
+
 app.get("/500", errorController.get500);
-// Route for 404 - page not found error
 app.use(errorController.get404);
 
 // GLOBAL ERROR HANDLINGS with app.use(err, req, res, next)

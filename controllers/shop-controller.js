@@ -289,6 +289,7 @@ const showProducts = (
         .limit(ITEMS_PER_PAGE);
     })
     .then((products) => {
+      // res.setHeader("Content-Type", "image/jpeg");
       res.render(viewName, {
         prods: products,
         pageTitle: title,

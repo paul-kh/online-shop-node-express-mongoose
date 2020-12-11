@@ -1,12 +1,13 @@
-const Product = require("../models/product");
+// Third-party modules
 const { validationResult } = require("express-validator");
-const deleteFile = require("../util/delete-file");
-const AWS = require("aws-sdk");
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
 
+// Util/helper modules
+const AWS_S3_HELPER = require("../util/aws-s3-file-helper"); // For upload & delete file in AWS S3 bucket
+
+// Models
+const Product = require("../models/product");
+
+// Route controllers
 exports.getAddProduct = (req, res, next) => {
   res.render("admin-views/edit-product", {
     pageTitle: "Add Product",
@@ -80,43 +81,32 @@ exports.postAddProduct = (req, res, next) => {
       user: req.user.email,
     });
   }
-
-  // Upload product image to AWS S3 bucket
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    // Key: `${uuid()}.${fileType}`,
-    Key: Date.now() + "-" + req.file.originalname,
-    Body: req.file.path,
-    // Body: req.file.buffer, // memoryStorage
-  };
-  s3.upload(params, (error, data) => {
-    if (error) return console.log(error);
-
-    // Delete local file on the server
-    deleteFile(req.file.path);
-
-    // Add product to DB
-    const product = new Product({
-      title: title,
-      price: price,
-      imageUrl: data.Location,
-      awsObjKey: data.key,
-      description: description,
-      userId: req.user, // Mongoose will map 'req.user' = 'req.user_id'
-    });
-
-    // Save newly created document
-    product
-      .save()
-      .then((p) => {
-        res.redirect("/admin/products");
-      })
-      .catch((err) => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+  AWS_S3_HELPER.uploadeFileAWS_S3(
+    process.env.AWS_BUCKET_NAME,
+    req.file,
+    (data) => {
+      // Add product to DB
+      const product = new Product({
+        title: title,
+        price: price,
+        imageUrl: data.Location,
+        awsObjKey: data.key,
+        description: description,
+        userId: req.user, // Mongoose will map 'req.user' = 'req.user_id'
       });
-  });
+      // Save newly created document
+      product
+        .save()
+        .then((p) => {
+          res.redirect("/admin/products");
+        })
+        .catch((err) => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    }
+  );
 };
 
 exports.getProducts = (req, res, next) => {
@@ -210,31 +200,26 @@ exports.postEditProduct = (req, res, next) => {
       // If login user matches the user who created the product
       if (image) {
         // Delete old product image
-        deleteFileAWS_S3(process.env.AWS_BUCKET_NAME, product.awsObjKey);
-
-        // upload new product image
-        const params = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: Date.now() + "-" + req.file.originalname,
-          Body: req.file.path,
-        };
-        s3.upload(params, (error, data) => {
-          if (error) return console.log(error);
-          console.log("AWS S3 file uploaded:", data);
-          // Delete local file on the server
-          deleteFile(req.file.path);
-
-          // Set new values of product attributes
-          product.title = newTitle;
-          product.price = newPrice;
-          product.description = newDescription;
-          product.imageUrl = data.Location;
-          product.awsObjKey = data.key;
-          product.save().then(() => {
-            console.log("The product is updated successfully!");
-            res.redirect("/admin/products");
-          });
-        });
+        AWS_S3_HELPER.deleteFileAWS_S3(
+          process.env.AWS_BUCKET_NAME,
+          product.awsObjKey
+        );
+        AWS_S3_HELPER.uploadeFileAWS_S3(
+          process.env.AWS_BUCKET_NAME,
+          req.file,
+          (data) => {
+            // Update product in DB
+            product.title = newTitle;
+            product.price = newPrice;
+            product.description = newDescription;
+            product.imageUrl = data.Location;
+            product.awsObjKey = data.key;
+            product.save().then(() => {
+              console.log("The product is updated successfully!");
+              res.redirect("/admin/products");
+            });
+          }
+        );
       }
     })
     .catch((err) => {
@@ -260,24 +245,9 @@ exports.deleteProduct = (req, res, next) => {
       res.status(200).json({ message: "Success!" });
 
       // Delete image from AWS S3 Bucket
-      deleteFileAWS_S3(process.env.AWS_BUCKET_NAME, awsObjKey);
+      AWS_S3_HELPER.deleteFileAWS_S3(process.env.AWS_BUCKET_NAME, awsObjKey);
     })
     .catch((err) => {
       res.status(500).json({ message: "Deleting product failed." });
     });
-};
-
-// A helper function
-const deleteFileAWS_S3 = (bucket, key) => {
-  const params = {
-    Bucket: bucket,
-    Key: key,
-  };
-  s3.deleteObject(params, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("File Successfully Deleted from AWS S3!");
-    }
-  });
 };
