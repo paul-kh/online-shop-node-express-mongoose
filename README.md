@@ -17,12 +17,13 @@ A simple online shop that allows users to shop and adminster products with onlin
 
 ### Product Shopping
 
+- Show product list with pagination
 - Show product details
 - Add a product to cart
 - Delete item from cart
 - Checkout & place order
 - Make card payment
-- Create & download PDF invoice
+- Download PDF invoice
 
 ### Security & Protection
 
