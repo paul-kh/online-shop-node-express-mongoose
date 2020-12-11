@@ -9,20 +9,16 @@ module.exports = uploadProductImage = (app, fileInput) => {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 
+  const fileName = "";
   const storage = multer.memoryStorage({
     destination: (req, file, cb) => {
       cb(null, "");
     },
-    // filename: (req, file, cb) => {
-    //   const date = new Date();
-    //   cb(null, Date.now() + "-" + file.originalname);
-    // },
+    filename: (req, file, cb) => {
+      const date = new Date();
+      cb(null, Date.now() + "-" + file.originalname);
+    },
   });
-  // const storage = multer.memoryStorage({
-  //   destination: function(req, file, callback) {
-  //       callback(null, '')
-  //   }
-  // })
 
   // Filter file type
   const fileFilter = (req, file, cb) => {
@@ -45,14 +41,15 @@ module.exports = uploadProductImage = (app, fileInput) => {
     limits: { fileSize: 524288 }, // limit max 500KB
   });
 
-  app.use(upload.single(fileInput), (req, res, next) => {
+  return app.use(upload.single(fileInput), (req, res, next) => {
     let myFile = req.file.originalname.split(".");
     const fileType = myFile[myFile.length - 1];
+    const fileName = myFile[0];
 
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
       // Key: `${uuid()}.${fileType}`,
-      Key: Date.now() + "-" + file.originalname,
+      Key: Date.now() + "-" + fileName + fileType,
       Body: req.file.buffer,
     };
 

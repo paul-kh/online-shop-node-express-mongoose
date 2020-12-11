@@ -8,4 +8,5 @@ server.cert
 *.jpg
 *.jpeg
 *.png
+playground.js
 

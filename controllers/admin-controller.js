@@ -1,9 +1,12 @@
 const Product = require("../models/product");
-const user = require("../models/user");
 const { validationResult } = require("express-validator");
 const deleteFile = require("../util/delete-file");
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
-// GET '/admin/add-product
 exports.getAddProduct = (req, res, next) => {
   res.render("admin-views/edit-product", {
     pageTitle: "Add Product",
@@ -16,15 +19,7 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-// POST '/admin/add-product
 exports.postAddProduct = (req, res, next) => {
-  const AWS = require("aws-sdk");
-
-  const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  });
-
   const image = req.file;
   const title = req.body.title;
   const price = req.body.price;
@@ -85,12 +80,8 @@ exports.postAddProduct = (req, res, next) => {
       user: req.user.email,
     });
   }
-  // const imageUrl = image.path;
 
-  // ============================
-  // let myFile = req.file.originalname.split(".");
-  // const fileType = myFile[myFile.length - 1];
-
+  // Upload product image to AWS S3 bucket
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     // Key: `${uuid()}.${fileType}`,
@@ -98,21 +89,18 @@ exports.postAddProduct = (req, res, next) => {
     Body: req.file.path,
     // Body: req.file.buffer, // memoryStorage
   };
-
   s3.upload(params, (error, data) => {
-    if (error) {
-      // return res.status(500).send(error);
-      return console.log(error);
-    }
-    // Delete local file
+    if (error) return console.log(error);
+
+    // Delete local file on the server
     deleteFile(req.file.path);
-    const imageUrl = data.Location;
-    console.log("image URL:", imageUrl);
+
     // Add product to DB
     const product = new Product({
       title: title,
       price: price,
-      imageUrl: imageUrl,
+      imageUrl: data.Location,
+      awsObjKey: data.key,
       description: description,
       userId: req.user, // Mongoose will map 'req.user' = 'req.user_id'
     });
@@ -129,11 +117,8 @@ exports.postAddProduct = (req, res, next) => {
         return next(error);
       });
   });
-
-  //===================
 };
 
-// Show admin's product list => GET '/admin/products
 exports.getProducts = (req, res, next) => {
   // To get only products that are associated with the current user,
   // we use the magic method 'User.getProducts()' created by 'Sequelize Association'
@@ -153,7 +138,6 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-// Render product edit form => GET '/admin/edit-product
 exports.getEditProduct = (req, res, next) => {
   // Get the 'edit' param sent via url from the client -  url: /admin/edit-product/id?edit=true'
   const isEditing = req.query.edit;
@@ -189,7 +173,6 @@ exports.getEditProduct = (req, res, next) => {
     });
 };
 
-// Update the edited product in DB => POST '/admin/edit-product/'
 exports.postEditProduct = (req, res, next) => {
   // Get values of all the form fields sent via POST request
   const productId = req.body.productId; // This was sent via a hidden input/form control named 'productId' in the view 'edit-product.ejs'
@@ -225,18 +208,34 @@ exports.postEditProduct = (req, res, next) => {
         return res.redirect("/");
 
       // If login user matches the user who created the product
-      product.title = newTitle;
-      product.price = newPrice;
-      product.description = newDescription;
       if (image) {
-        deleteFile(product.imageUrl);
-        product.imageUrl = image.path;
+        // Delete old product image
+        deleteFileAWS_S3(process.env.AWS_BUCKET_NAME, product.awsObjKey);
+
+        // upload new product image
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: Date.now() + "-" + req.file.originalname,
+          Body: req.file.path,
+        };
+        s3.upload(params, (error, data) => {
+          if (error) return console.log(error);
+          console.log("AWS S3 file uploaded:", data);
+          // Delete local file on the server
+          deleteFile(req.file.path);
+
+          // Set new values of product attributes
+          product.title = newTitle;
+          product.price = newPrice;
+          product.description = newDescription;
+          product.imageUrl = data.Location;
+          product.awsObjKey = data.key;
+          product.save().then(() => {
+            console.log("The product is updated successfully!");
+            res.redirect("/admin/products");
+          });
+        });
       }
-      return product.save(); // save to DB
-    })
-    .then((result) => {
-      console.log("The product is updated successfully!");
-      res.redirect("/admin/products");
     })
     .catch((err) => {
       const error = new Error(err);
@@ -245,41 +244,40 @@ exports.postEditProduct = (req, res, next) => {
     });
 };
 
-// Delete a product => POST '/admin/delete'
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.params.productId;
+  let awsObjKey;
   Product.findById(prodId)
     .then((product) => {
       if (!product) {
         return next(new Error("Product not found."));
       }
-      // deleteFile(product.imageUrl);
+      awsObjKey = product.awsObjKey;
       return Product.deleteOne({ _id: prodId, userId: req.user._id });
     })
     .then(() => {
       console.log("DESTROYED PRODUCT");
       res.status(200).json({ message: "Success!" });
+
+      // Delete image from AWS S3 Bucket
+      deleteFileAWS_S3(process.env.AWS_BUCKET_NAME, awsObjKey);
     })
     .catch((err) => {
       res.status(500).json({ message: "Deleting product failed." });
     });
+};
 
-  // // Get product ID from the hidden input form control in the view 'products.ejs'
-  // const productId = req.params.productId;
-  // Product.findById(productId)
-  //   .then((product) => {
-  //     if (!product) return next(new Error("Product not found."));
-  //     return Product.deleteOne({ _id: productId, userId: req.user._id })
-  //       .then(() => {
-  //         // Delete product's image file
-  //         deleteFile(product.imageUrl);
-  //         res.redirect("/admin/products");
-  //       })
-  //       .catch((err) => next(err));
-  //   })
-  //   .catch((err) => {
-  //     const error = new Error(err);
-  //     error.httpStatusCode = 500;
-  //     return next(error);
-  //   });
+// A helper function
+const deleteFileAWS_S3 = (bucket, key) => {
+  const params = {
+    Bucket: bucket,
+    Key: key,
+  };
+  s3.deleteObject(params, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("File Successfully Deleted from AWS S3!");
+    }
+  });
 };
