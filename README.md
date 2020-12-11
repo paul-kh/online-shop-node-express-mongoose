@@ -17,7 +17,6 @@ A simple online shop that allows users to shop and adminster products with onlin
 
 ### Product Shopping
 
-- Signup new user
 - Show product details
 - Add a product to cart
 - Delete item from cart
