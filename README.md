@@ -2,7 +2,7 @@
 
 A simple online shop that allows users to shop and adminster products with online card payment.
 
-## Live Site on Heroku
+## Live Site on AWS Elastic Beanstalk
 
 . Live Site: http://myshop-env.eba-bgvvfsie.us-east-2.elasticbeanstalk.com/
 
