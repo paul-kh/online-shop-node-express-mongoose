@@ -90,7 +90,7 @@ exports.postLogin = (req, res, next) => {
             req.session.user = foundUser;
             return req.session.save((err) => {
               console.log(err);
-              res.redirect("/");
+              res.redirect("/products");
             });
           }
           return res.status(422).render("auth-views/login", {

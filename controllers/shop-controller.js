@@ -5,7 +5,6 @@ const PDFDocument = require("pdfkit");
 
 const Product = require("../models/product");
 const Order = require("../models/order");
-const order = require("../models/order");
 const deleteFile = require("../util/delete-file");
 
 // Number of products to show per page - Pagination
@@ -13,11 +12,10 @@ const ITEMS_PER_PAGE = 3;
 
 // Homepage (index.ejs) => GET '/'
 exports.getHomepage = (req, res, next) => {
-  showProducts(req, res, next, {
-    renderView: "shop-views/product-list",
-    viewPath: "/",
-    pageTitle: "Home Page",
-    ITEMS_PER_PAGE: ITEMS_PER_PAGE,
+  res.render("shop-views/index", {
+    pageTitle: "Home page",
+    path: "/",
+    user: req.user ? req.user.email : "",
   });
 };
 // Product list => GET '/products'
