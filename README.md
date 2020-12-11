@@ -8,35 +8,29 @@ A simple online shop that allows users to shop and adminster products with onlin
 
 ## Features & Functions of the app
 
-- Product Administration
+### Product Administration
 
----
+- Add new product
+- Edit product
+- Delete product
+- Show admin product list
 
-. Add new product
-. Edit product
-. Delete product
-. Show admin product list
+### Product Shopping
 
-- Product Shopping
+- Signup new user
+- Show product details
+- Add a product to cart
+- Delete item from cart
+- Checkout & place order
+- Make card payment
+- Create & download PDF invoice
 
----
+### Security & Protection
 
-. Signup new user
-. Show product details
-. Add a product to cart
-. Delete item from cart
-. Checkout & place order
-. Make card payment
-. Create & download PDF invoice
-
-- Security & Protection
-
----
-
-. User Authentication (singup, login, logout, password reset via email)
-. User Authorization for protecting unauthorized resources
-. Route protection
-. CSRF attack protection
+- User Authentication (singup, login, logout, password reset via email)
+- User Authorization for protecting unauthorized resources
+- Route protection
+- CSRF attack protection
 
 ## Technologies Used
 
