@@ -12,10 +12,16 @@ const ITEMS_PER_PAGE = 3;
 
 // Homepage (index.ejs) => GET '/'
 exports.getHomepage = (req, res, next) => {
-  res.render("shop-views/index", {
+  // res.render("shop-views/index", {
+  //   pageTitle: "Home page",
+  //   path: "/",
+  //   user: req.user ? req.user.email : "",
+  // });
+  showProducts(req, res, next, {
+    renderView: "shop-views/index",
+    viewPath: "/",
     pageTitle: "Home page",
-    path: "/",
-    user: req.user ? req.user.email : "",
+    ITEMS_PER_PAGE: ITEMS_PER_PAGE,
   });
 };
 // Product list => GET '/products'

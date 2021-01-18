@@ -11,6 +11,18 @@
         <% if (errorMsg) { %>
         <div class="user-message user-message--error"><%= errorMsg %></div>
         <% } %>
+
+        <div class="centered">
+            <h1>Welcome to this online shop app!</h1>
+            <p>Use test account below to experience the app's full functionalities or <a href="/signup">sign up for your own user account.</a> </p>
+        </div>
+        <div style="margin: 0 auto; width: 400px; background-color: rgb(213, 233, 233); padding: 10px">
+            <ul style="margin: 0 auto; width: 250px;">
+                <li>Username: <strong>test@test.com</strong></li>
+                <li>Password: <strong>tester</strong></li>
+            </ul>
+        </div>
+
         <form class="login-form" action="/login" method="POST" novalidate>
             <div class="form-control">
                 <label for="email">E-Mail</label>

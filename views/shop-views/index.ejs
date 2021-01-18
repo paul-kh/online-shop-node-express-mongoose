@@ -9,7 +9,7 @@
         <% if (!user) { %>
         <div class="centered">
             <h1>Welcome to this simple online shop!</h1>
-            <p>Use test account below or <a href="/signup">sign up for your own user account.</a> </p>
+            <p>Use test account below to experience the app's full functionalities or <a href="/signup">sign up for your own user account.</a> </p>
         </div>
         <div style="margin: 0 auto; width: 400px; background-color: rgb(213, 233, 233); padding: 10px">
             <ul style="margin: 0 auto; width: 250px;">
@@ -24,6 +24,42 @@
             <p> For the source codes on my Gihub repo, <a href="https://github.com/paul-kh/online-shop-node-express-mongoose" target="_blank">click here</a>.</p>
             <p> Thank you!</p>
         </div>
-        <% } %>   
+        <% } %> 
+        
+        <div style="border-bottom: 1px solid gray; margin: 30px 0;"> </div>
+
+        <% if (prods.length > 0) { %>
+            <div class="grid">
+                <% for (let product of prods) { %>
+                <article class="card product-item">
+                    <header class="card__header">
+                        <h1 class="product__title">
+                            <%= product.title %>
+                        </h1>
+                    </header>
+                    <div class="card__image">
+                        <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
+                    </div>
+                    <div class="card__content">
+                        <h2 class="product__price">$
+                            <%= product.price %>
+                        </h2>
+                        <p class="product__description">
+                            <%= product.description %>
+                        </p>
+                    </div>
+                    <div class="card__actions">
+                        <a href="/products/<%= product._id %>" class="btn">Details</a>
+                        <% if (isAuthenticated) { %>
+                        <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+                        <% } %>
+                    </div>
+                </article>
+                <% } %>
+            </div>
+            <%- include('../includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage: previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
+            <% } else { %>
+            <h1>No Products Found!</h1>
+            <% } %>
     </main>
     <%- include('../includes/end.ejs') %>
