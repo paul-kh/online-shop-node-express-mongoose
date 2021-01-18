@@ -2,9 +2,9 @@
 
 A simple online shop that allows users to shop and adminster products with online card payment.
 
-## Live Site on Heroku
+## Live Site on Amazon Web Service
 
-. Live Site: https://my-shop-node-express-mongoose.herokuapp.com/
+. Live Site: http://onlineshop-env.eba-uwgctxhz.us-west-2.elasticbeanstalk.com/
 
 ## Features & Functions of the app
 
